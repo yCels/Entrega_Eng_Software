@@ -11,7 +11,7 @@ como banco de dados.
 | --- | --- | --- |
 | 1 | Como equipe de desenvolvimento, quero ter as entidades do sistema modeladas (usuário, campeonato, time, jogador, partida, evento de partida), para que o banco de dados reflita corretamente as regras do domínio. | Alta |
 | 2 | Como equipe de desenvolvimento, quero o backend conectado ao PostgreSQL, para que os dados sejam persistidos de forma confiável. | Alta |
-| 3 | Como equipe de desenvolvimento, quero o projeto FastAPI estruturado em camadas (models, schemas, services, routers), para que o código fique de fácil manutenção. | Alta |
+| 3 | Como equipe de desenvolvimento, quero o projeto FastAPI estruturado em camadas (models, schemas, services, routers), para que o código fique de fácil manutenção. | Média |
 | 4 | Como equipe de desenvolvimento, quero as tabelas criadas no banco de dados a partir dos models, para que a aplicação tenha onde persistir os dados. | Alta |
 
 ## Autenticação de Usuários
@@ -20,7 +20,7 @@ como banco de dados.
 | --- | --- | --- |
 | 5 | Como organizador, quero me cadastrar no sistema com nome, email e senha, para que eu possa criar minha conta. | Alta |
 | 6 | Como organizador, quero fazer login com email e senha, para que eu acesse meus campeonatos com segurança. | Alta |
-| 7 | Como organizador, quero visualizar e gerenciar apenas os campeonatos que eu mesmo criei, para que meus dados não se misturem com os de outros usuários. | Alta |
+| 7 | Como organizador, quero visualizar e gerenciar apenas os campeonatos que eu mesmo criei, para que meus dados não se misturem com os de outros usuários. | Média |
 
 ## Gestão de Campeonatos
 
@@ -29,7 +29,7 @@ como banco de dados.
 | 8 | Como organizador, quero criar um novo campeonato informando nome e data de início, para que eu possa começar a organizá-lo. | Alta |
 | 9 | Como organizador, quero listar todos os meus campeonatos, para que eu tenha uma visão geral de tudo que estou organizando. | Alta |
 | 10 | Como organizador, quero editar ou excluir um campeonato, para que eu possa corrigir informações ou remover um campeonato encerrado por engano. | Média |
-| 11 | Como organizador, quero que o campeonato tenha um status (em andamento / encerrado), para que eu saiba rapidamente a situação de cada um. | Média |
+| 11 | Como organizador, quero que o campeonato tenha um status (em andamento / encerrado), para que eu saiba rapidamente a situação de cada um. | Baixa |
 
 ## Gestão de Times e Jogadores
 
@@ -84,6 +84,6 @@ como banco de dados.
 
 | Rank | User Story | Prioridade |
 | --- | --- | --- |
-| 31 | Como equipe de desenvolvimento, quero definir o contrato de comunicação entre frontend e backend, para que os dois lados sejam desenvolvidos em paralelo sem divergência. | Alta |
+| 31 | Como equipe de desenvolvimento, quero definir o contrato de comunicação entre frontend e backend, para que os dois lados sejam desenvolvidos em paralelo sem divergência. | Média |
 | 32 | Como equipe de desenvolvimento, quero substituir os dados simulados (mocks) pela API real, para que o sistema funcione de ponta a ponta. | Alta |
-| 33 | Como equipe de desenvolvimento, quero testar o sistema completo integrado, para que eu tenha confiança de que tudo funciona antes da entrega. | Alta |
+| 33 | Como equipe de desenvolvimento, quero testar o sistema completo integrado, para que eu tenha confiança de que tudo funciona antes da entrega. | Média |
