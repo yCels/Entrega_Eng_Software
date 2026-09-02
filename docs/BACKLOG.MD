@@ -1,9 +1,5 @@
 # Backlog do Projeto — Sistema de Gerenciamento de Campeonatos Amadores de Futebol
 
-Backlog em formato de user stories, ordenado por rank (ordem de execução
-sugerida, respeitando as dependências entre as partes do sistema) e com
-prioridade atribuída (Alta / Média / Baixa).
-
 Stack: Python (FastAPI) no backend, React (TypeScript) no frontend, PostgreSQL
 como banco de dados.
 
@@ -91,12 +87,3 @@ como banco de dados.
 | 31 | Como equipe de desenvolvimento, quero definir o contrato de comunicação entre frontend e backend, para que os dois lados sejam desenvolvidos em paralelo sem divergência. | Alta |
 | 32 | Como equipe de desenvolvimento, quero substituir os dados simulados (mocks) pela API real, para que o sistema funcione de ponta a ponta. | Alta |
 | 33 | Como equipe de desenvolvimento, quero testar o sistema completo integrado, para que eu tenha confiança de que tudo funciona antes da entrega. | Alta |
-
-## Preparação para a Entrega
-
-| Rank | User Story | Prioridade |
-| --- | --- | --- |
-| 34 | Como equipe de desenvolvimento, quero preparar dados de exemplo no sistema, para que a demonstração não seja feita com o banco vazio. | Média |
-| 35 | Como equipe de desenvolvimento, quero revisar o sistema em busca de falhas, para que a apresentação ocorra sem imprevistos. | Média |
-| 36 | Como equipe de desenvolvimento, quero ensaiar a apresentação final, para que a explicação do projeto fique clara para o professor. | Baixa |
-| 37 | Como organizador, quero que as telas se ajustem bem a diferentes tamanhos de tela, para que o sistema seja usável tanto no computador quanto no celular. | Baixa |
