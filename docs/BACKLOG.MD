@@ -51,54 +51,52 @@ como banco de dados.
 | 16 | Como organizador, quero agendar uma partida entre dois times de um campeonato, informando data, horário e local, para que o confronto fique registrado. | Alta |
 | 17 | Como organizador, quero que o sistema impeça agendar duas partidas no mesmo horário e local, para que não haja conflito de agenda. | Alta |
 | 18 | Como organizador, quero que o sistema impeça um time de ter duas partidas marcadas no mesmo horário, para que a agenda de cada time seja respeitada. | Alta |
-| 19 | Como equipe de desenvolvimento, quero uma restrição de unicidade no banco de dados, para que o conflito de agenda seja bloqueado mesmo em caso de falha na validação da aplicação. | Média |
 
 ## Registro de Eventos e Resultados
 
 | Rank | User Story | Prioridade |
 | --- | --- | --- |
-| 20 | Como organizador, quero registrar os eventos de uma partida (gols e cartões) vinculados a um jogador, para que o histórico da partida fique completo. | Alta |
-| 21 | Como organizador, quero que o placar da partida seja calculado automaticamente a partir dos eventos de gol registrados, para que eu não precise digitar o resultado manualmente. | Alta |
+| 19 | Como organizador, quero registrar os eventos de uma partida (gols e cartões) vinculados a um jogador, para que o histórico da partida fique completo. | Alta |
+| 20 | Como organizador, quero que o placar da partida seja calculado automaticamente a partir dos eventos de gol registrados, para que eu não precise digitar o resultado manualmente. | Alta |
 
 ## Cálculo da Classificação
 
 | Rank | User Story | Prioridade |
 | --- | --- | --- |
-| 22 | Como organizador, quero visualizar a tabela de classificação do campeonato, para que eu acompanhe a posição de cada time. | Alta |
-| 23 | Como organizador, quero que a classificação seja calculada automaticamente (pontos, vitórias, empates, derrotas, saldo de gols), para que eu não precise calcular manualmente. | Alta |
-| 24 | Como organizador, quero que o desempate entre times seja feito pelo saldo de gols, para que a ordenação da tabela siga um critério claro. | Média |
+| 21 | Como organizador, quero visualizar a tabela de classificação do campeonato, para que eu acompanhe a posição de cada time. | Alta |
+| 22 | Como organizador, quero que a classificação seja calculada automaticamente (pontos, vitórias, empates, derrotas, saldo de gols), para que eu não precise calcular manualmente. | Alta |
 
 ## Padrões de Projeto e Arquitetura (Requisitos Não Funcionais)
 
 | Rank | User Story | Prioridade |
 | --- | --- | --- |
-| 25 | Como equipe de desenvolvimento, quero a lógica de negócio separada em uma camada de serviço (Service Layer), para que o código fique organizado e testável. | Média |
-| 26 | Como equipe de desenvolvimento, quero aplicar o Builder Pattern na geração de partidas/calendário, para que o requisito de padrão de projeto do professor seja atendido. | Média |
+| 23 | Como equipe de desenvolvimento, quero a lógica de negócio separada em uma camada de serviço (Service Layer), para que o código fique organizado e testável. | Média |
+| 24 | Como equipe de desenvolvimento, quero aplicar o Builder Pattern na geração de partidas/calendário, para que o requisito de padrão de projeto do professor seja atendido. | Média |
 
 ## Frontend — Telas e Navegação
 
 | Rank | User Story | Prioridade |
 | --- | --- | --- |
-| 27 | Como organizador, quero uma tela de login e cadastro, para que eu acesse o sistema pelo navegador. | Alta |
-| 28 | Como organizador, quero uma tela de listagem e criação de campeonatos, para que eu gerencie meus campeonatos visualmente. | Alta |
-| 29 | Como organizador, quero telas para gerenciar times e jogadores, para que eu não precise mexer diretamente na API. | Alta |
-| 30 | Como organizador, quero uma tela de agendamento de partidas que me avise claramente quando houver conflito de agenda, para que eu entenda o motivo do erro. | Alta |
-| 31 | Como organizador, quero uma tela para lançar os eventos de uma partida, para que eu registre gols e cartões de forma simples. | Alta |
-| 32 | Como organizador, quero uma tela de classificação sempre atualizada, para que eu acompanhe o campeonato visualmente. | Alta |
+| 25 | Como organizador, quero uma tela de login e cadastro, para que eu acesse o sistema pelo navegador. | Alta |
+| 26 | Como organizador, quero uma tela de listagem e criação de campeonatos, para que eu gerencie meus campeonatos visualmente. | Alta |
+| 27 | Como organizador, quero telas para gerenciar times e jogadores, para que eu não precise mexer diretamente na API. | Alta |
+| 28 | Como organizador, quero uma tela de agendamento de partidas que me avise claramente quando houver conflito de agenda, para que eu entenda o motivo do erro. | Alta |
+| 29 | Como organizador, quero uma tela para lançar os eventos de uma partida, para que eu registre gols e cartões de forma simples. | Alta |
+| 30 | Como organizador, quero uma tela de classificação sempre atualizada, para que eu acompanhe o campeonato visualmente. | Alta |
 
 ## Integração entre Frontend e Backend
 
 | Rank | User Story | Prioridade |
 | --- | --- | --- |
-| 33 | Como equipe de desenvolvimento, quero definir o contrato de comunicação entre frontend e backend, para que os dois lados sejam desenvolvidos em paralelo sem divergência. | Alta |
-| 34 | Como equipe de desenvolvimento, quero substituir os dados simulados (mocks) pela API real, para que o sistema funcione de ponta a ponta. | Alta |
-| 35 | Como equipe de desenvolvimento, quero testar o sistema completo integrado, para que eu tenha confiança de que tudo funciona antes da entrega. | Alta |
+| 31 | Como equipe de desenvolvimento, quero definir o contrato de comunicação entre frontend e backend, para que os dois lados sejam desenvolvidos em paralelo sem divergência. | Alta |
+| 32 | Como equipe de desenvolvimento, quero substituir os dados simulados (mocks) pela API real, para que o sistema funcione de ponta a ponta. | Alta |
+| 33 | Como equipe de desenvolvimento, quero testar o sistema completo integrado, para que eu tenha confiança de que tudo funciona antes da entrega. | Alta |
 
 ## Preparação para a Entrega
 
 | Rank | User Story | Prioridade |
 | --- | --- | --- |
-| 36 | Como equipe de desenvolvimento, quero preparar dados de exemplo no sistema, para que a demonstração não seja feita com o banco vazio. | Média |
-| 37 | Como equipe de desenvolvimento, quero revisar o sistema em busca de falhas, para que a apresentação ocorra sem imprevistos. | Média |
-| 38 | Como equipe de desenvolvimento, quero ensaiar a apresentação final, para que a explicação do projeto fique clara para o professor. | Baixa |
-| 39 | Como organizador, quero que as telas se ajustem bem a diferentes tamanhos de tela, para que o sistema seja usável tanto no computador quanto no celular. | Baixa |
+| 34 | Como equipe de desenvolvimento, quero preparar dados de exemplo no sistema, para que a demonstração não seja feita com o banco vazio. | Média |
+| 35 | Como equipe de desenvolvimento, quero revisar o sistema em busca de falhas, para que a apresentação ocorra sem imprevistos. | Média |
+| 36 | Como equipe de desenvolvimento, quero ensaiar a apresentação final, para que a explicação do projeto fique clara para o professor. | Baixa |
+| 37 | Como organizador, quero que as telas se ajustem bem a diferentes tamanhos de tela, para que o sistema seja usável tanto no computador quanto no celular. | Baixa |
