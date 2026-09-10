@@ -1,5 +1,4 @@
 
-
 class Jogador(Base):
     __tablename__="jogadores"
     id=Column(Integer, primary_key=True)
