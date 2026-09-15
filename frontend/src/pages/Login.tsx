@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login, saveToken } from '../api/auth'
-import './Login.css'
+import styles from './Login.module.css'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -49,11 +49,11 @@ function Login() {
   }
 
   return (
-    <section className="login">
-      <form className="login-card" onSubmit={handleSubmit} noValidate>
+    <section className={styles.login}>
+      <form className={styles.loginCard} onSubmit={handleSubmit} noValidate>
         <h1>Entrar</h1>
 
-        <label className="login-field" htmlFor="email">
+        <label className={styles.loginField} htmlFor="email">
           Email
           <input
             id="email"
@@ -66,7 +66,7 @@ function Login() {
           />
         </label>
 
-        <label className="login-field" htmlFor="password">
+        <label className={styles.loginField} htmlFor="password">
           Senha
           <input
             id="password"
@@ -80,12 +80,12 @@ function Login() {
         </label>
 
         {error && (
-          <p className="login-error" role="alert">
+          <p className={styles.loginError} role="alert">
             {error}
           </p>
         )}
 
-        <button type="submit" className="login-submit" disabled={loading}>
+        <button type="submit" className={styles.loginSubmit} disabled={loading}>
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
       </form>

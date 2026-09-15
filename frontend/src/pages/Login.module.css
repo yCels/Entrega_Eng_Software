@@ -1,12 +1,21 @@
 .login {
-  flex-grow: 1;
+  box-sizing: border-box;
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  min-height: 100vh;
   display: flex;
   place-content: center;
   place-items: center;
   padding: 32px 20px;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(60% 50% at 50% 0%, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 70%),
+    radial-gradient(45% 40% at 85% 100%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 70%);
 }
 
-.login-card {
+.loginCard {
   width: 100%;
   max-width: 360px;
   display: flex;
@@ -15,15 +24,16 @@
   padding: 32px;
   border: 1px solid var(--border);
   border-radius: 8px;
+  background: var(--code-bg);
   text-align: left;
 }
 
-.login-card h1 {
+.loginCard h1 {
   margin: 0 0 8px;
   text-align: center;
 }
 
-.login-field {
+.loginField {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -31,7 +41,7 @@
   color: var(--text-h);
 }
 
-.login-field input {
+.loginField input {
   font: inherit;
   padding: 10px 12px;
   border-radius: 6px;
@@ -49,13 +59,14 @@
   }
 }
 
-.login-error {
+.loginError {
   margin: 0;
   font-size: 14px;
   color: #d92d20;
 }
 
-.login-submit {
+.loginSubmit {
+  width: 100%;
   font: inherit;
   font-size: 16px;
   padding: 10px 16px;
