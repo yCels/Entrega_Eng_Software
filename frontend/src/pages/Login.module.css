@@ -15,6 +15,20 @@
     radial-gradient(45% 40% at 85% 100%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 70%);
 }
 
+.backLink {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--text-h);
+    text-decoration: underline;
+  }
+}
+
 .loginCard {
   width: 100%;
   max-width: 360px;

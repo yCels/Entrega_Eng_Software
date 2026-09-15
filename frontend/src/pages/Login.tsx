@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { login, saveToken } from '../api/auth'
 import styles from './Login.module.css'
 
@@ -50,6 +50,10 @@ function Login() {
 
   return (
     <section className={styles.login}>
+      <Link to="/" className={styles.backLink}>
+        ← Voltar
+      </Link>
+
       <form className={styles.loginCard} onSubmit={handleSubmit} noValidate>
         <h1>Entrar</h1>
 
