@@ -1,4 +1,4 @@
-.login {
+.register {
   box-sizing: border-box;
   position: relative;
   left: 50%;
@@ -29,7 +29,7 @@
   }
 }
 
-.loginCard {
+.registerCard {
   width: 100%;
   max-width: 360px;
   display: flex;
@@ -42,12 +42,12 @@
   text-align: left;
 }
 
-.loginCard h1 {
+.registerCard h1 {
   margin: 0 0 8px;
   text-align: center;
 }
 
-.loginField {
+.registerField {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -55,7 +55,7 @@
   color: var(--text-h);
 }
 
-.loginField input {
+.registerField input {
   font: inherit;
   padding: 10px 12px;
   border-radius: 6px;
@@ -73,13 +73,13 @@
   }
 }
 
-.loginError {
+.registerError {
   margin: 0;
   font-size: 14px;
   color: #d92d20;
 }
 
-.loginSubmit {
+.registerSubmit {
   width: 100%;
   font: inherit;
   font-size: 16px;

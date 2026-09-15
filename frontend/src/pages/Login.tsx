@@ -92,6 +92,10 @@ function Login() {
         <button type="submit" className={styles.loginSubmit} disabled={loading}>
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
+
+        <p className={styles.switchText}>
+          Não tem conta? <Link to="/cadastro">Cadastre-se</Link>
+        </p>
       </form>
     </section>
   )
