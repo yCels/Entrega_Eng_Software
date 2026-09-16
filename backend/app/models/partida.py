@@ -6,4 +6,4 @@ class Partida(Base):
     campeonato_id=Column(Integer,ForeignKey("campeonatos.id"))
     time_mandante_id = Column(Integer,ForeignKey("times.id"))
     time_visitante_id = Column(Integer,ForeignKey("times.id"))
-    
+        
