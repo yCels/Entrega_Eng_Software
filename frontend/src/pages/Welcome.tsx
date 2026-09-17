@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import BallIcon from '../components/BallIcon'
 import FieldPattern from '../components/FieldPattern'
 import styles from './Welcome.module.css'
 
@@ -14,8 +13,7 @@ function Welcome() {
         <h1 className={styles.title}>
           Bem-vindo ao{' '}
           <span className={styles.brand}>
-            <BallIcon className={styles.brandIcon} />
-            Nexum
+            Ne<span className={styles.brandX}>x</span>um
           </span>
         </h1>
         <p className={styles.welcomeDescription}>
