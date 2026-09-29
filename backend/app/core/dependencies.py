@@ -21,8 +21,8 @@ def get_current_user(
     """
     try:
         payload = decodificar_token(token)
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        sub = payload.get("sub")
+        if sub is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token inválido",
@@ -32,7 +32,7 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido ou expirado",
         )
-
+    user_id = int(sub)
     usuario = db.query(Usuario).filter(Usuario.id == user_id).first()
     if usuario is None:
         raise HTTPException(
