@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
+import app.models  # noqa: F401 — registra todas as tabelas no Base.metadata
 
 
 @asynccontextmanager
