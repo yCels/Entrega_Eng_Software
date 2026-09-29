@@ -1,0 +1,22 @@
+# === Já instalados ===
+fastapi==0.141.1
+sqlalchemy==2.0.52
+pydantic==2.13.4
+psycopg2-binary==2.9.12
+uvicorn==0.52.4
+python-dotenv==1.2.3
+pydantic-settings>=2.0
+
+# === Autenticação (JWT + hash de senha) ===
+python-jose[cryptography]
+passlib[bcrypt]
+
+# === Validação de email (EmailStr) ===
+pydantic[email]
+
+# === Migrations ===
+alembic
+
+# === Testes ===
+pytest
+httpx
