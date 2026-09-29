@@ -34,10 +34,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# === Routers serão registrados aqui conforme forem criados ===
-# app.include_router(auth_router.router, prefix="/api/auth", tags=["Autenticação"])
+# === Routers ===
+from app.routers import auth_router
+
+app.include_router(auth_router.router, prefix="/api/auth", tags=["Autenticação"])
+
+# Os demais serão ativados conforme forem criados:
 # app.include_router(campeonato_router.router, prefix="/api/campeonatos", tags=["Campeonatos"])
-# ...
 
 
 @app.get("/", tags=["Health Check"])
