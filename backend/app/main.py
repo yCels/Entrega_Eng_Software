@@ -13,7 +13,7 @@ async def lifespan(app: FastAPI):
         Base.metadata.create_all(bind=engine)
         print("✅ Tabelas criadas/verificadas com sucesso.")
     except Exception as e:
-        print(f"⚠️  Não foi possível conectar ao banco: {e}")
+        print(f"  Não foi possível conectar ao banco: {e}")
         print("   O servidor vai subir, mas os endpoints que usam o banco vão falhar.")
     yield
 
@@ -35,12 +35,10 @@ app.add_middleware(
 )
 
 # === Routers ===
-from app.routers import auth_router
+from app.routers import auth_router, campeonato_router
 
 app.include_router(auth_router.router, prefix="/api/auth", tags=["Autenticação"])
-
-# Os demais serão ativados conforme forem criados:
-# app.include_router(campeonato_router.router, prefix="/api/campeonatos", tags=["Campeonatos"])
+app.include_router(campeonato_router.router, prefix="/api/campeonatos", tags=["Campeonatos"])
 
 
 @app.get("/", tags=["Health Check"])
