@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clearToken } from '../api/auth'
 import {
   criar,
   editar,
+  excluir,
   listar,
   type Campeonato,
   type CampeonatoCreate,
 } from '../api/campeonatos'
 import CampeonatoFormModal from '../components/CampeonatoFormModal'
 import FieldPattern from '../components/FieldPattern'
+import Modal from '../components/Modal'
 import styles from './Campeonatos.module.css'
 
 type LoadStatus = 'loading' | 'error' | 'ready'
@@ -41,6 +43,11 @@ function Campeonatos() {
   const [reloadKey, setReloadKey] = useState(0)
   const [formState, setFormState] = useState<FormState>(null)
   const [feedback, setFeedback] = useState<Feedback | null>(null)
+  const [busyIds, setBusyIds] = useState<number[]>([])
+  const [toDelete, setToDelete] = useState<Campeonato | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const feedbackCounter = useRef(0)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -74,7 +81,8 @@ function Campeonatos() {
   const encerrados = campeonatos.length - emAndamento
 
   function showFeedback(type: Feedback['type'], message: string) {
-    setFeedback({ id: Date.now(), type, message })
+    feedbackCounter.current += 1
+    setFeedback({ id: feedbackCounter.current, type, message })
   }
 
   function replaceCampeonato(updated: Campeonato) {
@@ -94,6 +102,46 @@ function Campeonatos() {
       showFeedback('success', 'Campeonato criado.')
     }
     setFormState(null)
+  }
+
+  async function handleToggleEncerrado(campeonato: Campeonato) {
+    setBusyIds((current) => [...current, campeonato.id])
+
+    try {
+      const updated = await editar(campeonato.id, { encerrado: !campeonato.encerrado })
+      replaceCampeonato(updated)
+      showFeedback(
+        'success',
+        updated.encerrado ? 'Campeonato marcado como encerrado.' : 'Campeonato reaberto.',
+      )
+    } catch (err) {
+      showFeedback('error', err instanceof Error ? err.message : 'Não foi possível atualizar o campeonato.')
+    } finally {
+      setBusyIds((current) => current.filter((id) => id !== campeonato.id))
+    }
+  }
+
+  function openDeleteConfirmation(campeonato: Campeonato) {
+    setDeleteError(null)
+    setToDelete(campeonato)
+  }
+
+  async function handleConfirmDelete() {
+    if (!toDelete) return
+
+    setDeleting(true)
+    setDeleteError(null)
+
+    try {
+      await excluir(toDelete.id)
+      setCampeonatos((current) => current.filter((campeonato) => campeonato.id !== toDelete.id))
+      setToDelete(null)
+      showFeedback('success', 'Campeonato excluído.')
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Não foi possível excluir o campeonato.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   function handleRetry() {
@@ -180,32 +228,55 @@ function Campeonatos() {
 
         {status === 'ready' && campeonatos.length > 0 && (
           <ul className={styles.list}>
-            {sortedCampeonatos.map((campeonato) => (
-              <li key={campeonato.id} className={styles.card}>
-                <span
-                  className={`${styles.badge} ${
-                    campeonato.encerrado ? styles.badgeClosed : styles.badgeOpen
-                  }`}
-                >
-                  {campeonato.encerrado ? 'Encerrado' : 'Em andamento'}
-                </span>
-                <h2 className={styles.cardTitle}>{campeonato.nome}</h2>
-                <p className={styles.cardDate}>
-                  Início:{' '}
-                  <time dateTime={campeonato.data_inicio}>{formatDate(campeonato.data_inicio)}</time>
-                </p>
-                <div className={styles.cardActions}>
-                  <button
-                    type="button"
-                    className={styles.actionButton}
-                    onClick={() => setFormState({ mode: 'edit', campeonato })}
-                    aria-label={`Editar ${campeonato.nome}`}
+            {sortedCampeonatos.map((campeonato) => {
+              const busy = busyIds.includes(campeonato.id)
+
+              return (
+                <li key={campeonato.id} className={styles.card} aria-busy={busy}>
+                  <span
+                    className={`${styles.badge} ${
+                      campeonato.encerrado ? styles.badgeClosed : styles.badgeOpen
+                    }`}
                   >
-                    Editar
-                  </button>
-                </div>
-              </li>
-            ))}
+                    {campeonato.encerrado ? 'Encerrado' : 'Em andamento'}
+                  </span>
+                  <h2 className={styles.cardTitle}>{campeonato.nome}</h2>
+                  <p className={styles.cardDate}>
+                    Início:{' '}
+                    <time dateTime={campeonato.data_inicio}>{formatDate(campeonato.data_inicio)}</time>
+                  </p>
+                  <div className={styles.cardActions}>
+                    <button
+                      type="button"
+                      className={styles.actionButton}
+                      onClick={() => setFormState({ mode: 'edit', campeonato })}
+                      aria-label={`Editar ${campeonato.nome}`}
+                      disabled={busy}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.actionButton}
+                      onClick={() => handleToggleEncerrado(campeonato)}
+                      aria-label={`${campeonato.encerrado ? 'Reabrir' : 'Encerrar'} ${campeonato.nome}`}
+                      disabled={busy}
+                    >
+                      {busy ? 'Salvando...' : campeonato.encerrado ? 'Reabrir' : 'Encerrar'}
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.actionButton} ${styles.dangerButton}`}
+                      onClick={() => openDeleteConfirmation(campeonato)}
+                      aria-label={`Excluir ${campeonato.nome}`}
+                      disabled={busy}
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
       </div>
@@ -224,6 +295,38 @@ function Campeonatos() {
           onSubmit={handleFormSubmit}
           onClose={() => setFormState(null)}
         />
+      )}
+
+      {toDelete && (
+        <Modal title="Excluir campeonato" onClose={() => setToDelete(null)} busy={deleting}>
+          <p className={styles.confirmText}>
+            Tem certeza que deseja excluir <strong>{toDelete.nome}</strong>? Esta ação não pode ser
+            desfeita.
+          </p>
+          {deleteError && (
+            <p className={styles.confirmError} role="alert">
+              {deleteError}
+            </p>
+          )}
+          <div className={styles.confirmActions}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={() => setToDelete(null)}
+              disabled={deleting}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              className={styles.dangerSolidButton}
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? 'Excluindo...' : 'Excluir'}
+            </button>
+          </div>
+        </Modal>
       )}
 
       <div className={styles.feedbackRegion} role="status" aria-live="polite">
