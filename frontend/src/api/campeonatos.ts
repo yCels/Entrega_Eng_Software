@@ -3,6 +3,7 @@ import {
   addMockCampeonato,
   getMockCampeonatos,
   removeMockCampeonato,
+  shouldMockFail,
   updateMockCampeonato,
 } from '../mocks/campeonatos'
 
@@ -35,6 +36,11 @@ function simulateNetwork(): Promise<void> {
 // TODO: substituir por chamada fetch real quando a API do backend estiver disponível
 export async function listar(): Promise<Campeonato[]> {
   await simulateNetwork()
+
+  if (shouldMockFail()) {
+    throw new Error('Não foi possível carregar os campeonatos.')
+  }
+
   return getMockCampeonatos()
 }
 

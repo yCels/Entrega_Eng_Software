@@ -8,6 +8,14 @@ export interface MockCampeonato {
 
 export const MOCK_ORGANIZADOR_ID = 1
 
+// Para testar o estado de erro da listagem, rode no console do navegador:
+// localStorage.setItem('mock_falhar_campeonatos', '1')  (e removeItem para voltar ao normal)
+const MOCK_FAIL_STORAGE_KEY = 'mock_falhar_campeonatos'
+
+export function shouldMockFail(): boolean {
+  return localStorage.getItem(MOCK_FAIL_STORAGE_KEY) === '1'
+}
+
 const MOCK_CAMPEONATOS: MockCampeonato[] = [
   {
     id: 1,
