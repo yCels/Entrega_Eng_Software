@@ -36,13 +36,17 @@ app.add_middleware(
 )
 
 
-from app.routers import auth_router, campeonato_router, time_router, jogador_router, partida_router
+from app.routers import (
+    auth_router, campeonato_router, time_router,
+    jogador_router, partida_router, evento_router,
+)
 
 app.include_router(auth_router.router, prefix="/api/auth", tags=["Autenticação"])
 app.include_router(campeonato_router.router, prefix="/api/campeonatos", tags=["Campeonatos"])
 app.include_router(time_router.router, prefix="/api")
 app.include_router(jogador_router.router, prefix="/api")
 app.include_router(partida_router.router, prefix="/api")
+app.include_router(evento_router.router, prefix="/api")
 
 
 @app.get("/", tags=["Health Check"])
