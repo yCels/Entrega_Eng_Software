@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from jose import JWTError
 
@@ -7,18 +7,19 @@ from app.database import get_db
 from app.core.security import decodificar_token
 from app.models.usuario import Usuario
 
-# tokenUrl aponta para o endpoint de login — o Swagger usa isso para o botão "Authorize"
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+# Permite colar o token no Authorize do Swagger
+bearer_scheme = HTTPBearer()
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: Session = Depends(get_db),
 ) -> Usuario:
     """Extrai o usuário autenticado a partir do token JWT.
 
     Injetado via Depends() nas rotas protegidas
     """
+    token = credentials.credentials
     try:
         payload = decodificar_token(token)
         sub = payload.get("sub")
