@@ -29,5 +29,5 @@ def login(db: Session, email: str, senha: str) -> dict:
     if not usuario or not verificar_senha(senha, usuario.senha_hash):
         raise HTTPException(status_code=401, detail="Email ou senha incorretos")
 
-    token = criar_token(data={"sub": usuario.id})
+    token = criar_token(data={"sub": str(usuario.id)})
     return {"access_token": token, "token_type": "bearer"}
