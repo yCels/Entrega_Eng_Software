@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
-import app.models  # noqa: F401 — registra todas as tabelas no Base.metadata
+import app.models 
+from app.routers import auth_router, campeonato_router, time_router
 
 
 @asynccontextmanager
@@ -25,7 +26,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — permite que o frontend React (Vite) faça requisições ao backend
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -34,11 +35,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# === Routers ===
-from app.routers import auth_router, campeonato_router
+
+from app.routers import auth_router, campeonato_router, time_router
 
 app.include_router(auth_router.router, prefix="/api/auth", tags=["Autenticação"])
 app.include_router(campeonato_router.router, prefix="/api/campeonatos", tags=["Campeonatos"])
+app.include_router(time_router.router, prefix="/api")
 
 
 @app.get("/", tags=["Health Check"])
