@@ -1,12 +1,4 @@
-// TODO: trocar o mock por fetch quando a api do backend ficar pronta
-import {
-  addMockCampeonato,
-  findMockCampeonato,
-  getMockCampeonatos,
-  removeMockCampeonato,
-  shouldMockFail,
-  updateMockCampeonato,
-} from '../mocks/campeonatos'
+import { request } from './client'
 
 export interface Campeonato {
   id: number
@@ -30,54 +22,22 @@ export interface CampeonatoUpdate {
   encerrado?: boolean
 }
 
-const MOCK_NETWORK_DELAY_MS = 800
-const NOT_FOUND_MESSAGE = 'Campeonato não encontrado'
-
-function simulateNetwork(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, MOCK_NETWORK_DELAY_MS))
-}
-
 export async function listar(): Promise<Campeonato[]> {
-  await simulateNetwork()
-
-  if (shouldMockFail()) {
-    throw new Error('Não foi possível carregar os campeonatos.')
-  }
-
-  return getMockCampeonatos()
+  return (await request('/campeonatos/')) as Campeonato[]
 }
 
 export async function obter(id: number): Promise<Campeonato> {
-  await simulateNetwork()
-
-  const campeonato = findMockCampeonato(id)
-  if (!campeonato) {
-    throw new Error(NOT_FOUND_MESSAGE)
-  }
-
-  return { ...campeonato }
+  return (await request(`/campeonatos/${id}`)) as Campeonato
 }
 
-export async function criar({ nome, data_inicio }: CampeonatoCreate): Promise<Campeonato> {
-  await simulateNetwork()
-  return addMockCampeonato(nome, data_inicio)
+export async function criar(dados: CampeonatoCreate): Promise<Campeonato> {
+  return (await request('/campeonatos/', 'POST', dados)) as Campeonato
 }
 
 export async function editar(id: number, dados: CampeonatoUpdate): Promise<Campeonato> {
-  await simulateNetwork()
-
-  const campeonato = updateMockCampeonato(id, dados)
-  if (!campeonato) {
-    throw new Error(NOT_FOUND_MESSAGE)
-  }
-
-  return campeonato
+  return (await request(`/campeonatos/${id}`, 'PUT', dados)) as Campeonato
 }
 
 export async function excluir(id: number): Promise<void> {
-  await simulateNetwork()
-
-  if (!removeMockCampeonato(id)) {
-    throw new Error(NOT_FOUND_MESSAGE)
-  }
+  await request(`/campeonatos/${id}`, 'DELETE')
 }
