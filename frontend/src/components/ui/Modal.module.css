@@ -1,0 +1,102 @@
+.dialog {
+  width: calc(100% - 32px);
+  max-width: 440px;
+  padding: 0;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-popover);
+
+  &::backdrop {
+    background: var(--overlay);
+  }
+
+  &[open] {
+    animation: modal-in 0.16s ease-out both;
+  }
+}
+
+.panel {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-right: -6px;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--text);
+    background: var(--surface-hover);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.description {
+  margin: -8px 0 16px;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+
+  & strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] {
+    animation: none;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 20px -20px -20px;
+  padding: 12px 20px;
+  background: var(--surface-muted);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+
+    & > * {
+      width: 100%;
+    }
+  }
+}
