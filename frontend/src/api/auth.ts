@@ -1,3 +1,4 @@
+// TODO: trocar o mock por fetch quando a api de login ficar pronta
 import { MOCK_USERS, addMockUser } from '../mocks/auth'
 
 export interface LoginCredentials {
@@ -22,7 +23,6 @@ export interface RegisterResponse {
 const MOCK_NETWORK_DELAY_MS = 800
 const TOKEN_STORAGE_KEY = 'auth_token'
 
-// TODO: substituir por chamada fetch real quando a API de autenticação do backend estiver disponível
 export async function login({ email, password }: LoginCredentials): Promise<LoginResponse> {
   await new Promise((resolve) => setTimeout(resolve, MOCK_NETWORK_DELAY_MS))
 
@@ -38,7 +38,6 @@ export async function login({ email, password }: LoginCredentials): Promise<Logi
   return { token: `mock-token.${btoa(email)}` }
 }
 
-// TODO: substituir por chamada fetch real quando a API de autenticação do backend estiver disponível
 export async function register({ name, email, password }: RegisterData): Promise<RegisterResponse> {
   await new Promise((resolve) => setTimeout(resolve, MOCK_NETWORK_DELAY_MS))
 

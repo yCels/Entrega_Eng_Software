@@ -9,7 +9,6 @@ function FieldPattern({ className }: FieldPatternProps) {
       viewBox="0 0 400 400"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
-      focusable="false"
     >
       <rect x="20" y="20" width="360" height="360" rx="12" fill="none" stroke="currentColor" strokeWidth="2" />
       <line x1="200" y1="20" x2="200" y2="380" stroke="currentColor" strokeWidth="2" />

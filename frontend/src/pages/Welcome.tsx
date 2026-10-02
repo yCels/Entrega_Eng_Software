@@ -1,33 +1,28 @@
-import { useNavigate } from 'react-router-dom'
-import FieldPattern from '../components/FieldPattern'
+import Brand from '../components/ui/Brand'
+import { ButtonLink } from '../components/ui/Button'
+import AuthLayout from '../layouts/AuthLayout'
 import styles from './Welcome.module.css'
 
 function Welcome() {
-  const navigate = useNavigate()
-
   return (
-    <section className={styles.welcome}>
-      <FieldPattern className={styles.pattern} />
-
-      <div className={styles.welcomeCard}>
+    <AuthLayout withPattern>
+      <div className={styles.welcome}>
         <h1 className={styles.title}>
-          Bem-vindo ao{' '}
-          <span className={styles.brand}>
-            Ne<span className={styles.brandX}>x</span>um
-          </span>
+          <Brand size="lg" />
         </h1>
-        <p className={styles.welcomeDescription}>
-          Organize e acompanhe seus campeonatos em um só lugar.
+        <p className={styles.description}>
+          Organize campeonatos amadores de futebol: times, partidas e classificação em um só lugar.
         </p>
-        <button
-          type="button"
-          className={styles.welcomeSubmit}
-          onClick={() => navigate('/login')}
-        >
-          Entrar
-        </button>
+        <div className={styles.actions}>
+          <ButtonLink to="/login" variant="primary">
+            Entrar
+          </ButtonLink>
+          <ButtonLink to="/cadastro" variant="secondary">
+            Criar conta
+          </ButtonLink>
+        </div>
       </div>
-    </section>
+    </AuthLayout>
   )
 }
 
