@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { register } from '../api/auth'
-import styles from './Register.module.css'
+import { Button } from '../components/ui/Button'
+import Input, { FormError } from '../components/ui/Input'
+import AuthLayout, { AuthCard } from '../layouts/AuthLayout'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -54,88 +56,75 @@ function Register() {
       await register({ name, email, password })
       navigate('/login')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Não foi possível concluir o cadastro.')
+      setError((err as Error).message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <section className={styles.register}>
-      <Link to="/" className={styles.backLink}>
-        ← Voltar
-      </Link>
+    <AuthLayout showBack>
+      <AuthCard
+        title="Criar conta"
+        subtitle="Comece a organizar seus campeonatos."
+        onSubmit={handleSubmit}
+        footer={
+          <>
+            Já tem conta? <Link to="/login">Entrar</Link>
+          </>
+        }
+      >
+        <Input
+          id="name"
+          name="name"
+          label="Nome"
+          type="text"
+          autoComplete="name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          disabled={loading}
+        />
 
-      <form className={styles.registerCard} onSubmit={handleSubmit} noValidate>
-        <h1>Criar conta</h1>
+        <Input
+          id="email"
+          name="email"
+          label="Email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          disabled={loading}
+        />
 
-        <label className={styles.registerField} htmlFor="name">
-          Nome
-          <input
-            id="name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            disabled={loading}
-          />
-        </label>
+        <Input
+          id="password"
+          name="password"
+          label="Senha"
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          disabled={loading}
+        />
 
-        <label className={styles.registerField} htmlFor="email">
-          Email
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            disabled={loading}
-          />
-        </label>
+        <Input
+          id="confirmPassword"
+          name="confirmPassword"
+          label="Confirmar senha"
+          type="password"
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          disabled={loading}
+        />
 
-        <label className={styles.registerField} htmlFor="password">
-          Senha
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            disabled={loading}
-          />
-        </label>
+        {error && <FormError>{error}</FormError>}
 
-        <label className={styles.registerField} htmlFor="confirmPassword">
-          Confirmar senha
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            disabled={loading}
-          />
-        </label>
-
-        {error && (
-          <p className={styles.registerError} role="alert">
-            {error}
-          </p>
-        )}
-
-        <button type="submit" className={styles.registerSubmit} disabled={loading}>
-          {loading ? 'Cadastrando...' : 'Cadastrar'}
-        </button>
-
-        <p className={styles.switchText}>
-          Já tem conta? <Link to="/login">Entrar</Link>
-        </p>
-      </form>
-    </section>
+        <Button type="submit" variant="primary" fullWidth loading={loading} loadingText="Cadastrando...">
+          Cadastrar
+        </Button>
+      </AuthCard>
+    </AuthLayout>
   )
 }
 
