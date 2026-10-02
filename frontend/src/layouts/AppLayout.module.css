@@ -128,6 +128,31 @@
   border-top: 1px solid var(--border);
 }
 
+.user {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 10px 8px;
+}
+
+.userName,
+.userEmail {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.userName {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.userEmail {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 .footerButton {
   display: flex;
   align-items: center;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { clearToken } from '../api/auth'
+import { clearToken, getUsuarioLogado, type UsuarioLogado } from '../api/auth'
 import Brand from '../components/ui/Brand'
 import {
   CalendarIcon,
@@ -26,6 +26,7 @@ const CAMPEONATO_ITEMS: DisabledItem[] = [
 
 function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [usuario, setUsuario] = useState<UsuarioLogado | null>(null)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const sidebarRef = useRef<HTMLElement>(null)
   const navigate = useNavigate()
@@ -36,6 +37,13 @@ function AppLayout() {
       menuButtonRef.current?.focus()
     }
   }
+
+  useEffect(() => {
+    getUsuarioLogado()
+      .then(setUsuario)
+      .catch(() => {
+      })
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -133,6 +141,12 @@ function AppLayout() {
         </nav>
 
         <div className={styles.sidebarFooter}>
+          {usuario && (
+            <div className={styles.user}>
+              <span className={styles.userName}>{usuario.nome}</span>
+              <span className={styles.userEmail}>{usuario.email}</span>
+            </div>
+          )}
           <ThemeToggle withLabel />
           <button type="button" className={styles.footerButton} onClick={handleLogout}>
             <LogOutIcon />
