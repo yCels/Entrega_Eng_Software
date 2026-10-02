@@ -1,0 +1,94 @@
+export interface MockCampeonato {
+  id: number
+  nome: string
+  data_inicio: string
+  encerrado: boolean
+  organizador_id: number
+}
+
+const MOCK_ORGANIZADOR_ID = 1
+
+// pra testar o erro da lista: localStorage.setItem('mock_falhar_campeonatos', '1') no console
+const MOCK_FAIL_STORAGE_KEY = 'mock_falhar_campeonatos'
+
+export function shouldMockFail(): boolean {
+  return localStorage.getItem(MOCK_FAIL_STORAGE_KEY) === '1'
+}
+
+const MOCK_CAMPEONATOS: MockCampeonato[] = [
+  {
+    id: 1,
+    nome: 'Copa da Várzea 2026',
+    data_inicio: '2026-08-15',
+    encerrado: false,
+    organizador_id: MOCK_ORGANIZADOR_ID,
+  },
+  {
+    id: 2,
+    nome: 'Torneio de Verão do Bairro',
+    data_inicio: '2026-01-10',
+    encerrado: true,
+    organizador_id: MOCK_ORGANIZADOR_ID,
+  },
+  {
+    id: 3,
+    nome: 'Liga Amadora Society',
+    data_inicio: '2026-09-05',
+    encerrado: false,
+    organizador_id: MOCK_ORGANIZADOR_ID,
+  },
+  {
+    id: 4,
+    nome: 'Taça dos Veteranos',
+    data_inicio: '2025-11-22',
+    encerrado: true,
+    organizador_id: MOCK_ORGANIZADOR_ID,
+  },
+]
+
+let nextMockId = MOCK_CAMPEONATOS.length + 1
+
+// devolve cópia, igual um backend, pra tela não mexer no mock sem querer
+export function getMockCampeonatos(): MockCampeonato[] {
+  return MOCK_CAMPEONATOS.map((campeonato) => ({ ...campeonato }))
+}
+
+export function findMockCampeonato(id: number): MockCampeonato | undefined {
+  return MOCK_CAMPEONATOS.find((campeonato) => campeonato.id === id)
+}
+
+export function addMockCampeonato(nome: string, data_inicio: string): MockCampeonato {
+  const campeonato: MockCampeonato = {
+    id: nextMockId++,
+    nome,
+    data_inicio,
+    encerrado: false,
+    organizador_id: MOCK_ORGANIZADOR_ID,
+  }
+  MOCK_CAMPEONATOS.push(campeonato)
+  return { ...campeonato }
+}
+
+type MockCampeonatoChanges = {
+  nome?: string
+  data_inicio?: string
+  encerrado?: boolean
+}
+
+export function updateMockCampeonato(id: number, changes: MockCampeonatoChanges): MockCampeonato | undefined {
+  const campeonato = findMockCampeonato(id)
+  if (!campeonato) {
+    return undefined
+  }
+  Object.assign(campeonato, changes)
+  return { ...campeonato }
+}
+
+export function removeMockCampeonato(id: number): boolean {
+  const index = MOCK_CAMPEONATOS.findIndex((campeonato) => campeonato.id === id)
+  if (index === -1) {
+    return false
+  }
+  MOCK_CAMPEONATOS.splice(index, 1)
+  return true
+}
