@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from app.core.transacao import salvar
 from fastapi import HTTPException
 
 from app.models.evento_partida import EventoPartida, TipoEvento
@@ -46,7 +47,7 @@ def registrar(db: Session, partida_id: int, dados: EventoPartidaCreate, user_id:
         time_id=dados.time_id,
     )
     db.add(novo_evento)
-    db.commit()
+    salvar(db)
     db.refresh(novo_evento)
     return novo_evento
 

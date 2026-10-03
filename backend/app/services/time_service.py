@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from app.core.transacao import salvar
 from fastapi import HTTPException
 
 from app.models.time import Time
@@ -22,7 +23,7 @@ def criar(db: Session, campeonato_id: int, dados: TimeCreate, user_id: int) -> T
     _verificar_campeonato(db, campeonato_id, user_id)
     novo_time = Time(nome=dados.nome, campeonato_id=campeonato_id)
     db.add(novo_time)
-    db.commit()
+    salvar(db)
     db.refresh(novo_time)
     return novo_time
 
@@ -47,7 +48,7 @@ def editar(db: Session, time_id: int, dados: TimeUpdate, user_id: int) -> Time:
     time = obter(db, time_id, user_id)
     if dados.nome is not None:
         time.nome = dados.nome
-    db.commit()
+    salvar(db)
     db.refresh(time)
     return time
 
@@ -56,4 +57,4 @@ def excluir(db: Session, time_id: int, user_id: int):
     """Remove o time (cascade em jogadores)."""
     time = obter(db, time_id, user_id)
     db.delete(time)
-    db.commit()
+    salvar(db)

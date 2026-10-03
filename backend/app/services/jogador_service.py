@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from app.core.transacao import salvar
 from fastapi import HTTPException
 
 from app.models.jogador import Jogador
@@ -31,7 +32,7 @@ def criar(db: Session, time_id: int, dados: JogadorCreate, user_id: int) -> Joga
         time_id=time_id,
     )
     db.add(novo_jogador)
-    db.commit()
+    salvar(db)
     db.refresh(novo_jogador)
     return novo_jogador
 
@@ -60,7 +61,7 @@ def editar(db: Session, jogador_id: int, dados: JogadorUpdate, user_id: int) -> 
         jogador.numero_camisa = dados.numero_camisa
     if dados.posicao is not None:
         jogador.posicao = dados.posicao
-    db.commit()
+    salvar(db)
     db.refresh(jogador)
     return jogador
 
@@ -69,4 +70,4 @@ def excluir(db: Session, jogador_id: int, user_id: int):
     """Remove o jogador."""
     jogador = obter(db, jogador_id, user_id)
     db.delete(jogador)
-    db.commit()
+    salvar(db)

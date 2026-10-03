@@ -1,10 +1,16 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import relationship
 from app.database import Base
 
 
 class Partida(Base):
     __tablename__ = "partidas"
+    __table_args__ = (
+        # US 17: duas partidas não podem ocorrer no mesmo horário e local
+        UniqueConstraint("data_hora", "local", name="uq_partidas_data_hora_local"),
+        # Uma partida deve ser entre dois times distintos
+        CheckConstraint("time_mandante_id <> time_visitante_id", name="ck_partidas_times_diferentes"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     data_hora = Column(DateTime, nullable=False)

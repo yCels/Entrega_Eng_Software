@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Integer, ForeignKey, Enum as SAEnum
+from sqlalchemy import Column, Integer, ForeignKey, CheckConstraint, Enum as SAEnum
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -14,6 +14,9 @@ class TipoEvento(str, enum.Enum):
 
 class EventoPartida(Base):
     __tablename__ = "eventos_partida"
+    __table_args__ = (
+        CheckConstraint("minuto IS NULL OR minuto >= 0", name="ck_eventos_minuto_positivo"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     tipo = Column(SAEnum(TipoEvento), nullable=False)

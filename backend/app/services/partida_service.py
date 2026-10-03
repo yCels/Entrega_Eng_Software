@@ -6,6 +6,7 @@ from app.models.partida import Partida
 from app.models.time import Time
 from app.models.campeonato import Campeonato
 from app.schemas.partida import PartidaCreate
+from app.core.transacao import salvar
 
 
 def _verificar_campeonato(db: Session, campeonato_id: int, user_id: int) -> Campeonato:
@@ -20,22 +21,31 @@ def _verificar_campeonato(db: Session, campeonato_id: int, user_id: int) -> Camp
 
 
 def _validar_times(db: Session, campeonato_id: int, dados: PartidaCreate):
-    """Valida que os dois times existem, pertencem ao campeonato e são diferentes."""
+    """Valida que os dois times existem, pertencem ao campeonato e são diferentes.
+
+    Validação transacional: as linhas dos dois times são travadas com
+    SELECT ... FOR UPDATE até o fim da transação. Assim, duas requisições
+    simultâneas envolvendo o mesmo time são serializadas e a checagem de
+    conflito + INSERT acontecem de forma atômica. A ordenação por id evita deadlock.
+    """
     if dados.time_mandante_id == dados.time_visitante_id:
         raise HTTPException(status_code=400, detail="Uma partida deve ser entre dois times diferentes")
 
-    mandante = db.query(Time).filter(
-        Time.id == dados.time_mandante_id,
-        Time.campeonato_id == campeonato_id,
-    ).first()
-    if not mandante:
-        raise HTTPException(status_code=404, detail="Time mandante não encontrado neste campeonato")
+    times = (
+        db.query(Time)
+        .filter(
+            Time.id.in_([dados.time_mandante_id, dados.time_visitante_id]),
+            Time.campeonato_id == campeonato_id,
+        )
+        .order_by(Time.id)
+        .with_for_update()
+        .all()
+    )
+    ids_encontrados = {t.id for t in times}
 
-    visitante = db.query(Time).filter(
-        Time.id == dados.time_visitante_id,
-        Time.campeonato_id == campeonato_id,
-    ).first()
-    if not visitante:
+    if dados.time_mandante_id not in ids_encontrados:
+        raise HTTPException(status_code=404, detail="Time mandante não encontrado neste campeonato")
+    if dados.time_visitante_id not in ids_encontrados:
         raise HTTPException(status_code=404, detail="Time visitante não encontrado neste campeonato")
 
 
@@ -78,7 +88,9 @@ def agendar(db: Session, campeonato_id: int, dados: PartidaCreate, user_id: int)
         time_visitante_id=dados.time_visitante_id,
     )
     db.add(nova_partida)
-    db.commit()
+    # Rede de segurança: se outra transação gravou o mesmo horário/local,
+    # a UNIQUE uq_partidas_data_hora_local dispara e é feito ROLLBACK.
+    salvar(db, "Já existe uma partida neste horário e local")
     db.refresh(nova_partida)
     return nova_partida
 

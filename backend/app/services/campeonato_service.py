@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from app.core.transacao import salvar
 from app.schemas.campeonato import CampeonatoCreate, CampeonatoUpdate 
 from app.models.campeonato import Campeonato  
 from fastapi import HTTPException
@@ -10,7 +11,7 @@ def criar(db: Session,dados: CampeonatoCreate,user_id: int ):
         organizador_id=user_id
     )
     db.add(novo_campeonato)
-    db.commit()
+    salvar(db)
     db.refresh(novo_campeonato)
     return novo_campeonato
 
@@ -41,7 +42,7 @@ def editar(db: Session, id: int, user_id: int, dados: CampeonatoUpdate):
     if dados.encerrado is not None:
         campeonato.encerrado = dados.encerrado
 
-    db.commit()
+    salvar(db)
     db.refresh(campeonato)
 
     return campeonato
@@ -55,7 +56,7 @@ def encerrar(db: Session, id: int, user_id: int):
         )
         
     campeonato.encerrado = True
-    db.commit()
+    salvar(db)
     db.refresh(campeonato)
     return campeonato
 
@@ -70,7 +71,7 @@ def excluir(db: Session, id: int, user_id: int):
             detail="Campeonato não encontrado"
         )
     db.delete(campeonato)
-    db.commit()
+    salvar(db)
     return {"mensagem": "Campeonato excluído com sucesso"}
     
     

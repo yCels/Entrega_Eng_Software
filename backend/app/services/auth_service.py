@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate
 from app.core.security import hash_senha, verificar_senha, criar_token
+from app.core.transacao import salvar
 
 
 def cadastrar(db: Session, dados: UsuarioCreate) -> Usuario:
@@ -18,7 +19,9 @@ def cadastrar(db: Session, dados: UsuarioCreate) -> Usuario:
         senha_hash=hash_senha(dados.senha),
     )
     db.add(novo_usuario)
-    db.commit()
+    # Se outra requisição cadastrou o mesmo email ao mesmo tempo,
+    # a UNIQUE de usuarios.email dispara e é feito ROLLBACK.
+    salvar(db, "Email já cadastrado")
     db.refresh(novo_usuario)
     return novo_usuario
 
