@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { obter, type Campeonato } from '../api/campeonatos'
+import TimesSection from '../components/times/TimesSection'
 import { Button } from '../components/ui/Button'
 import { ArrowLeftIcon } from '../components/ui/Icons'
 import StatusIndicator from '../components/ui/StatusIndicator'
@@ -14,6 +15,7 @@ function CampeonatoDetalhe() {
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
+  const [totalTimes, setTotalTimes] = useState<number | null>(null)
 
   useEffect(() => {
     obter(campeonatoId)
@@ -80,13 +82,15 @@ function CampeonatoDetalhe() {
             </div>
             <div className={styles.stat}>
               <dt>Times</dt>
-              <dd className="num">{String(campeonato.total_times ?? 0).padStart(2, '0')}</dd>
+              <dd className="num">{totalTimes === null ? '--' : String(totalTimes).padStart(2, '0')}</dd>
             </div>
             <div className={styles.stat}>
               <dt>Partidas</dt>
               <dd className="num">{String(campeonato.total_partidas ?? 0).padStart(2, '0')}</dd>
             </div>
           </dl>
+
+          <TimesSection campeonatoId={campeonato.id} onCountChange={setTotalTimes} />
         </>
       )}
     </>

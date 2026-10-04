@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes, type ReactNode } from 'react'
+import { useId, type InputHTMLAttributes, type ReactNode, type Ref } from 'react'
 import styles from './Input.module.css'
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
@@ -7,6 +7,7 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   hideLabel?: boolean
   error?: string | null
   icon?: ReactNode
+  ref?: Ref<HTMLInputElement>
 }
 
 function Input({ label, hideLabel = false, error, icon, id, className, ...props }: InputProps) {
