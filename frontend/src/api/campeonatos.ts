@@ -1,6 +1,10 @@
+
 import {
   MOCK_ORGANIZADOR_ID,
   addMockCampeonato,
+import {
+  addMockCampeonato,
+  findMockCampeonato,
   getMockCampeonatos,
   removeMockCampeonato,
   shouldMockFail,
@@ -13,6 +17,8 @@ export interface Campeonato {
   data_inicio: string
   encerrado: boolean
   organizador_id: number
+  total_times?: number
+  total_partidas?: number
 }
 
 export interface CampeonatoCreate {
@@ -33,7 +39,6 @@ function simulateNetwork(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, MOCK_NETWORK_DELAY_MS))
 }
 
-// TODO: substituir por chamada fetch real quando a API do backend estiver disponível
 export async function listar(): Promise<Campeonato[]> {
   await simulateNetwork()
 
@@ -44,35 +49,26 @@ export async function listar(): Promise<Campeonato[]> {
   return getMockCampeonatos()
 }
 
-// TODO: substituir por chamada fetch real quando a API do backend estiver disponível
-export async function criar({ nome, data_inicio }: CampeonatoCreate): Promise<Campeonato> {
+export async function obter(id: number): Promise<Campeonato> {
   await simulateNetwork()
 
-  if (!nome.trim() || !data_inicio) {
-    throw new Error('Nome e data de início são obrigatórios.')
+  const campeonato = findMockCampeonato(id)
+  if (!campeonato) {
+    throw new Error(NOT_FOUND_MESSAGE)
   }
 
-  return addMockCampeonato({
-    nome: nome.trim(),
-    data_inicio,
-    encerrado: false,
-    organizador_id: MOCK_ORGANIZADOR_ID,
-  })
+  return { ...campeonato }
 }
 
-// TODO: substituir por chamada fetch real quando a API do backend estiver disponível
+export async function criar({ nome, data_inicio }: CampeonatoCreate): Promise<Campeonato> {
+  await simulateNetwork()
+  return addMockCampeonato(nome, data_inicio)
+}
+
 export async function editar(id: number, dados: CampeonatoUpdate): Promise<Campeonato> {
   await simulateNetwork()
 
-  const changes: CampeonatoUpdate = { ...dados }
-  if (changes.nome !== undefined) {
-    changes.nome = changes.nome.trim()
-    if (!changes.nome) {
-      throw new Error('O nome não pode ficar vazio.')
-    }
-  }
-
-  const campeonato = updateMockCampeonato(id, changes)
+  const campeonato = updateMockCampeonato(id, dados)
   if (!campeonato) {
     throw new Error(NOT_FOUND_MESSAGE)
   }
@@ -80,7 +76,6 @@ export async function editar(id: number, dados: CampeonatoUpdate): Promise<Campe
   return campeonato
 }
 
-// TODO: substituir por chamada fetch real quando a API do backend estiver disponível
 export async function excluir(id: number): Promise<void> {
   await simulateNetwork()
 

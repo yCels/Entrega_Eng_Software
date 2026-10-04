@@ -6,10 +6,8 @@ export interface MockCampeonato {
   organizador_id: number
 }
 
-export const MOCK_ORGANIZADOR_ID = 1
+const MOCK_ORGANIZADOR_ID = 1
 
-// Para testar o estado de erro da listagem, rode no console do navegador:
-// localStorage.setItem('mock_falhar_campeonatos', '1')  (e removeItem para voltar ao normal)
 const MOCK_FAIL_STORAGE_KEY = 'mock_falhar_campeonatos'
 
 export function shouldMockFail(): boolean {
@@ -57,16 +55,26 @@ export function findMockCampeonato(id: number): MockCampeonato | undefined {
   return MOCK_CAMPEONATOS.find((campeonato) => campeonato.id === id)
 }
 
-export function addMockCampeonato(data: Omit<MockCampeonato, 'id'>): MockCampeonato {
-  const campeonato: MockCampeonato = { id: nextMockId++, ...data }
+export function addMockCampeonato(nome: string, data_inicio: string): MockCampeonato {
+  const campeonato: MockCampeonato = {
+    id: nextMockId++,
+    nome,
+    data_inicio,
+    encerrado: false,
+    organizador_id: MOCK_ORGANIZADOR_ID,
+  }
+
   MOCK_CAMPEONATOS.push(campeonato)
   return { ...campeonato }
 }
 
-export function updateMockCampeonato(
-  id: number,
-  changes: Partial<Omit<MockCampeonato, 'id' | 'organizador_id'>>,
-): MockCampeonato | undefined {
+type MockCampeonatoChanges = {
+  nome?: string
+  data_inicio?: string
+  encerrado?: boolean
+}
+
+export function updateMockCampeonato(id: number, changes: MockCampeonatoChanges): MockCampeonato | undefined {
   const campeonato = findMockCampeonato(id)
   if (!campeonato) {
     return undefined

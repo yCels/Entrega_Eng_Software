@@ -1,6 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { clearToken } from '../api/auth'
+import { useEffect, useState } from 'react'
 import {
   criar,
   editar,
@@ -9,31 +7,27 @@ import {
   type Campeonato,
   type CampeonatoCreate,
 } from '../api/campeonatos'
-import CampeonatoFormModal from '../components/CampeonatoFormModal'
-import FieldPattern from '../components/FieldPattern'
-import Modal from '../components/Modal'
+import CampeonatoFormModal from '../components/campeonatos/CampeonatoFormModal'
+import CampeonatosPlacar, { type PlacarItem } from '../components/campeonatos/CampeonatosPlacar'
+import CampeonatosTable from '../components/campeonatos/CampeonatosTable'
+import { Button } from '../components/ui/Button'
+import { PlusIcon, SearchIcon } from '../components/ui/Icons'
+import Input, { FormError } from '../components/ui/Input'
+import Modal, { ModalActions } from '../components/ui/Modal'
+import { filterCampeonatos } from '../utils/campeonatos'
 import styles from './Campeonatos.module.css'
 
 type LoadStatus = 'loading' | 'error' | 'ready'
+type StatusFilter = 'todos' | 'andamento' | 'encerrados'
+type FormState = { mode: 'create' | 'edit'; campeonato?: Campeonato }
+type ToastMessage = { type: 'success' | 'error'; message: string }
 
-type FormState = { mode: 'create' } | { mode: 'edit'; campeonato: Campeonato } | null
+const TOAST_DURATION_MS = 3500
 
-type Feedback = { id: number; type: 'success' | 'error'; message: string }
-
-const SKELETON_CARDS = 4
-const FEEDBACK_DURATION_MS = 3500
-
-// Monta a data pelas partes para não deslocar o dia por causa do fuso horário.
-function formatDate(isoDate: string): string {
-  const [year, month, day] = isoDate.split('-').map(Number)
-  return new Date(year, month - 1, day).toLocaleDateString('pt-BR')
-}
-
-function sortCampeonatos(campeonatos: Campeonato[]): Campeonato[] {
-  return [...campeonatos].sort(
-    (a, b) =>
-      Number(a.encerrado) - Number(b.encerrado) || b.data_inicio.localeCompare(a.data_inicio),
-  )
+const LIST_TITLES = {
+  todos: 'Todos os campeonatos',
+  andamento: 'Em andamento',
+  encerrados: 'Encerrados',
 }
 
 function Campeonatos() {
@@ -41,48 +35,71 @@ function Campeonatos() {
   const [status, setStatus] = useState<LoadStatus>('loading')
   const [loadError, setLoadError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
-  const [formState, setFormState] = useState<FormState>(null)
-  const [feedback, setFeedback] = useState<Feedback | null>(null)
+
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('todos')
+  const [search, setSearch] = useState('')
+
+  const [formState, setFormState] = useState<FormState | null>(null)
   const [busyIds, setBusyIds] = useState<number[]>([])
   const [toDelete, setToDelete] = useState<Campeonato | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
-  const feedbackCounter = useRef(0)
-  const navigate = useNavigate()
+
+  const [toast, setToast] = useState<ToastMessage | null>(null)
 
   useEffect(() => {
-    let active = true
-
     listar()
       .then((data) => {
-        if (!active) return
         setCampeonatos(data)
         setStatus('ready')
       })
-      .catch((err: unknown) => {
-        if (!active) return
-        setLoadError(err instanceof Error ? err.message : 'Não foi possível carregar os campeonatos.')
+      .catch((err: Error) => {
+        setLoadError(err.message)
         setStatus('error')
       })
-
-    return () => {
-      active = false
-    }
   }, [reloadKey])
 
   useEffect(() => {
-    if (!feedback) return
-    const timer = setTimeout(() => setFeedback(null), FEEDBACK_DURATION_MS)
+    if (!toast) return
+    const timer = setTimeout(() => setToast(null), TOAST_DURATION_MS)
     return () => clearTimeout(timer)
-  }, [feedback])
+  }, [toast])
 
-  const sortedCampeonatos = useMemo(() => sortCampeonatos(campeonatos), [campeonatos])
   const emAndamento = campeonatos.filter((campeonato) => !campeonato.encerrado).length
   const encerrados = campeonatos.length - emAndamento
 
-  function showFeedback(type: Feedback['type'], message: string) {
-    feedbackCounter.current += 1
-    setFeedback({ id: feedbackCounter.current, type, message })
+  const visibleCampeonatos = filterCampeonatos(campeonatos, statusFilter, search)
+
+  const totalTimes = campeonatos.reduce((total, campeonato) => total + (campeonato.total_times ?? 0), 0)
+  const totalPartidas = campeonatos.reduce((total, campeonato) => total + (campeonato.total_partidas ?? 0), 0)
+
+  // os 3 primeiros blocos do placar também filtram a lista
+  const loaded = status === 'ready'
+  const placarItems: PlacarItem[] = [
+    {
+      label: 'Campeonatos',
+      value: loaded ? campeonatos.length : null,
+      active: statusFilter === 'todos',
+      onClick: () => setStatusFilter('todos'),
+    },
+    {
+      label: 'Em andamento',
+      value: loaded ? emAndamento : null,
+      active: statusFilter === 'andamento',
+      onClick: () => setStatusFilter('andamento'),
+    },
+    {
+      label: 'Encerrados',
+      value: loaded ? encerrados : null,
+      active: statusFilter === 'encerrados',
+      onClick: () => setStatusFilter('encerrados'),
+    },
+    { label: 'Times', value: loaded ? totalTimes : null },
+    { label: 'Partidas', value: loaded ? totalPartidas : null },
+  ]
+
+  function showToast(type: 'success' | 'error', message: string) {
+    setToast({ type, message })
   }
 
   function replaceCampeonato(updated: Campeonato) {
@@ -92,14 +109,14 @@ function Campeonatos() {
   }
 
   async function handleFormSubmit(values: CampeonatoCreate) {
-    if (formState?.mode === 'edit') {
+    if (formState?.campeonato) {
       const updated = await editar(formState.campeonato.id, values)
       replaceCampeonato(updated)
-      showFeedback('success', 'Campeonato atualizado.')
+      showToast('success', 'Campeonato atualizado.')
     } else {
       const created = await criar(values)
       setCampeonatos((current) => [...current, created])
-      showFeedback('success', 'Campeonato criado.')
+      showToast('success', 'Campeonato criado.')
     }
     setFormState(null)
   }
@@ -110,20 +127,12 @@ function Campeonatos() {
     try {
       const updated = await editar(campeonato.id, { encerrado: !campeonato.encerrado })
       replaceCampeonato(updated)
-      showFeedback(
-        'success',
-        updated.encerrado ? 'Campeonato marcado como encerrado.' : 'Campeonato reaberto.',
-      )
+      showToast('success', updated.encerrado ? 'Campeonato encerrado.' : 'Campeonato reaberto.')
     } catch (err) {
-      showFeedback('error', err instanceof Error ? err.message : 'Não foi possível atualizar o campeonato.')
+      showToast('error', (err as Error).message)
     } finally {
       setBusyIds((current) => current.filter((id) => id !== campeonato.id))
     }
-  }
-
-  function openDeleteConfirmation(campeonato: Campeonato) {
-    setDeleteError(null)
-    setToDelete(campeonato)
   }
 
   async function handleConfirmDelete() {
@@ -136,9 +145,9 @@ function Campeonatos() {
       await excluir(toDelete.id)
       setCampeonatos((current) => current.filter((campeonato) => campeonato.id !== toDelete.id))
       setToDelete(null)
-      showFeedback('success', 'Campeonato excluído.')
+      showToast('success', 'Campeonato excluído.')
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Não foi possível excluir o campeonato.')
+      setDeleteError((err as Error).message)
     } finally {
       setDeleting(false)
     }
@@ -147,201 +156,141 @@ function Campeonatos() {
   function handleRetry() {
     setStatus('loading')
     setLoadError(null)
-    setReloadKey((key) => key + 1)
+    setReloadKey(reloadKey + 1)
   }
 
-  function handleLogout() {
-    clearToken()
-    navigate('/login')
-  }
+  const openCreateForm = () => setFormState({ mode: 'create' })
+  const hasData = status === 'ready' && campeonatos.length > 0
 
   return (
-    <section className={styles.campeonatos}>
-      <FieldPattern className={styles.pattern} />
-
-      <header className={styles.topBar}>
-        <span className={styles.brand}>
-          Ne<span className={styles.brandX}>x</span>um
-        </span>
-        <button type="button" className={styles.logoutButton} onClick={handleLogout}>
-          Sair
-        </button>
+    <>
+      <header className={styles.header}>
+        <h1>Campeonatos</h1>
+        <Button variant="primary" icon={<PlusIcon />} onClick={openCreateForm} disabled={status !== 'ready'}>
+          Novo campeonato
+        </Button>
       </header>
 
-      <div className={styles.content}>
-        <div className={styles.pageHeader}>
-          <div>
-            <h1 className={styles.title}>Meus campeonatos</h1>
-            {status === 'ready' && campeonatos.length > 0 && (
-              <p className={styles.summary}>
-                {emAndamento} em andamento · {encerrados}{' '}
-                {encerrados === 1 ? 'encerrado' : 'encerrados'}
-              </p>
-            )}
+      <CampeonatosPlacar items={placarItems} />
+
+      {status === 'loading' && (
+        <div className={`${styles.panel} ${styles.state}`}>
+          <p className={styles.panelText} role="status">
+            Carregando...
+          </p>
+        </div>
+      )}
+
+      {status === 'error' && (
+        <div className={`${styles.panel} ${styles.state}`} role="alert">
+          <h2 className={styles.errorTitle}>Não foi possível carregar</h2>
+          <p className={styles.panelText}>{loadError}</p>
+          <Button variant="secondary" onClick={handleRetry}>
+            Tentar novamente
+          </Button>
+        </div>
+      )}
+
+      {status === 'ready' && campeonatos.length === 0 && (
+        <div className={`${styles.panel} ${styles.state}`}>
+          <h2>Nenhum campeonato ainda</h2>
+          <p className={styles.panelText}>
+            Crie seu primeiro campeonato para começar a cadastrar times e partidas.
+          </p>
+          <Button variant="primary" icon={<PlusIcon />} onClick={openCreateForm}>
+            Criar campeonato
+          </Button>
+        </div>
+      )}
+
+      {hasData && (
+        <div className={styles.panel}>
+          <div className={styles.listHeader}>
+            <h2 className={styles.listTitle}>
+              {LIST_TITLES[statusFilter]}
+              <span className={styles.listCount}>{String(visibleCampeonatos.length).padStart(2, '0')}</span>
+            </h2>
+            <Input
+              className={styles.search}
+              label="Buscar campeonato por nome"
+              hideLabel
+              type="search"
+              placeholder="Buscar por nome"
+              icon={<SearchIcon size={15} />}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </div>
-          {status === 'ready' && campeonatos.length > 0 && (
-            <button
-              type="button"
-              className={styles.primaryButton}
-              onClick={() => setFormState({ mode: 'create' })}
-            >
-              + Novo campeonato
-            </button>
+
+          {visibleCampeonatos.length > 0 ? (
+            <CampeonatosTable
+              campeonatos={visibleCampeonatos}
+              busyIds={busyIds}
+              onEdit={(campeonato) => setFormState({ mode: 'edit', campeonato })}
+              onToggleEncerrado={handleToggleEncerrado}
+              onDelete={(campeonato) => {
+                setDeleteError(null)
+                setToDelete(campeonato)
+              }}
+            />
+          ) : (
+            <div className={styles.state}>
+              <h2>Nenhum campeonato encontrado</h2>
+              <p className={styles.panelText}>Tente outro nome ou mude o filtro de status.</p>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setStatusFilter('todos')
+                  setSearch('')
+                }}
+              >
+                Limpar filtros
+              </Button>
+            </div>
           )}
         </div>
-
-        {status === 'loading' && (
-          <ul className={styles.list} aria-busy="true" aria-label="Carregando campeonatos">
-            {Array.from({ length: SKELETON_CARDS }, (_, index) => (
-              <li key={index} className={`${styles.card} ${styles.skeletonCard}`} aria-hidden="true">
-                <span className={`${styles.skeleton} ${styles.skeletonBadge}`} />
-                <span className={`${styles.skeleton} ${styles.skeletonTitle}`} />
-                <span className={`${styles.skeleton} ${styles.skeletonText}`} />
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {status === 'error' && (
-          <div className={styles.stateBox} role="alert">
-            <h2>Algo deu errado</h2>
-            <p>{loadError}</p>
-            <button type="button" className={styles.primaryButton} onClick={handleRetry}>
-              Tentar novamente
-            </button>
-          </div>
-        )}
-
-        {status === 'ready' && campeonatos.length === 0 && (
-          <div className={styles.stateBox}>
-            <h2>Nenhum campeonato por aqui ainda</h2>
-            <p>Crie seu primeiro campeonato para começar a organizar times e partidas.</p>
-            <button
-              type="button"
-              className={styles.primaryButton}
-              onClick={() => setFormState({ mode: 'create' })}
-            >
-              Criar primeiro campeonato
-            </button>
-          </div>
-        )}
-
-        {status === 'ready' && campeonatos.length > 0 && (
-          <ul className={styles.list}>
-            {sortedCampeonatos.map((campeonato) => {
-              const busy = busyIds.includes(campeonato.id)
-
-              return (
-                <li key={campeonato.id} className={styles.card} aria-busy={busy}>
-                  <span
-                    className={`${styles.badge} ${
-                      campeonato.encerrado ? styles.badgeClosed : styles.badgeOpen
-                    }`}
-                  >
-                    {campeonato.encerrado ? 'Encerrado' : 'Em andamento'}
-                  </span>
-                  <h2 className={styles.cardTitle}>{campeonato.nome}</h2>
-                  <p className={styles.cardDate}>
-                    Início:{' '}
-                    <time dateTime={campeonato.data_inicio}>{formatDate(campeonato.data_inicio)}</time>
-                  </p>
-                  <div className={styles.cardActions}>
-                    <button
-                      type="button"
-                      className={styles.actionButton}
-                      onClick={() => setFormState({ mode: 'edit', campeonato })}
-                      aria-label={`Editar ${campeonato.nome}`}
-                      disabled={busy}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.actionButton}
-                      onClick={() => handleToggleEncerrado(campeonato)}
-                      aria-label={`${campeonato.encerrado ? 'Reabrir' : 'Encerrar'} ${campeonato.nome}`}
-                      disabled={busy}
-                    >
-                      {busy ? 'Salvando...' : campeonato.encerrado ? 'Reabrir' : 'Encerrar'}
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.actionButton} ${styles.dangerButton}`}
-                      onClick={() => openDeleteConfirmation(campeonato)}
-                      aria-label={`Excluir ${campeonato.nome}`}
-                      disabled={busy}
-                    >
-                      Excluir
-                    </button>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
+      )}
 
       {formState && (
         <CampeonatoFormModal
-          key={formState.mode === 'edit' ? formState.campeonato.id : 'novo'}
-          title={formState.mode === 'edit' ? 'Editar campeonato' : 'Novo campeonato'}
-          submitLabel={formState.mode === 'edit' ? 'Salvar alterações' : 'Criar campeonato'}
-          loadingLabel={formState.mode === 'edit' ? 'Salvando...' : 'Criando...'}
-          initialValues={
-            formState.mode === 'edit'
-              ? { nome: formState.campeonato.nome, data_inicio: formState.campeonato.data_inicio }
-              : undefined
-          }
+          key={formState.campeonato?.id ?? 'novo'}
+          mode={formState.mode}
+          initialValues={formState.campeonato}
           onSubmit={handleFormSubmit}
           onClose={() => setFormState(null)}
         />
       )}
 
       {toDelete && (
-        <Modal title="Excluir campeonato" onClose={() => setToDelete(null)} busy={deleting}>
-          <p className={styles.confirmText}>
-            Tem certeza que deseja excluir <strong>{toDelete.nome}</strong>? Esta ação não pode ser
-            desfeita.
-          </p>
-          {deleteError && (
-            <p className={styles.confirmError} role="alert">
-              {deleteError}
-            </p>
-          )}
-          <div className={styles.confirmActions}>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              onClick={() => setToDelete(null)}
-              disabled={deleting}
-            >
+        <Modal
+          title="Excluir campeonato"
+          description={
+            <>
+              Tem certeza que deseja excluir <strong>{toDelete.nome}</strong>? Esta ação não pode ser
+              desfeita.
+            </>
+          }
+          onClose={() => setToDelete(null)}
+          busy={deleting}
+        >
+          {deleteError && <FormError>{deleteError}</FormError>}
+          <ModalActions>
+            <Button variant="secondary" onClick={() => setToDelete(null)} disabled={deleting}>
               Cancelar
-            </button>
-            <button
-              type="button"
-              className={styles.dangerSolidButton}
-              onClick={handleConfirmDelete}
-              disabled={deleting}
-            >
-              {deleting ? 'Excluindo...' : 'Excluir'}
-            </button>
-          </div>
+            </Button>
+            <Button variant="danger" onClick={handleConfirmDelete} loading={deleting} loadingText="Excluindo...">
+              Excluir
+            </Button>
+          </ModalActions>
         </Modal>
       )}
 
-      <div className={styles.feedbackRegion} role="status" aria-live="polite">
-        {feedback && (
-          <p
-            key={feedback.id}
-            className={`${styles.feedback} ${
-              feedback.type === 'error' ? styles.feedbackError : styles.feedbackSuccess
-            }`}
-          >
-            {feedback.message}
-          </p>
-        )}
-      </div>
-    </section>
+      {toast && (
+        <p className={toast.type === 'error' ? `${styles.toast} ${styles.toastError}` : styles.toast} role="status">
+          {toast.message}
+        </p>
+      )}
+    </>
   )
 }
 

@@ -1,0 +1,155 @@
+/* sem borda aqui porque a moldura vem do card da página */
+.wrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  & th {
+    height: 36px;
+    padding: 0 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-subtle);
+    background: var(--surface-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  & td {
+    height: 56px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  & tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.row {
+  cursor: pointer;
+  transition: background-color 0.12s;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+
+  /* inset pra faixa de status não mudar a largura das colunas */
+  & > td:first-child {
+    box-shadow: inset 3px 0 0 var(--row-stripe);
+  }
+}
+
+.open {
+  --row-stripe: var(--accent);
+}
+
+.closed {
+  --row-stripe: var(--border-strong);
+}
+
+.busy {
+  opacity: 0.55;
+}
+
+.nameCell {
+  width: 100%;
+  min-width: 200px;
+}
+
+.nameLink {
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  border-radius: 2px;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.date {
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.table .numeric {
+  text-align: right;
+  width: 1%;
+}
+
+.table td.numeric {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.table .actionsCell {
+  width: 1%;
+  padding-right: 10px;
+  padding-left: 4px;
+  text-align: right;
+}
+
+.table .mobileOnly {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .table thead,
+  .desktopOnly,
+  .table td.desktopOnly {
+    display: none;
+  }
+
+  .table tr {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .table td {
+    display: block;
+    height: auto;
+    padding: 12px 0 12px 14px;
+    border-bottom: 0;
+  }
+
+  .nameCell {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  .table .actionsCell {
+    width: auto;
+    padding: 0 8px;
+  }
+
+  .table .mobileOnly {
+    display: block;
+  }
+
+  .table .mobileMeta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+}
