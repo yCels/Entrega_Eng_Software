@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
-
 import AppLayout from './layouts/AppLayout'
 import Welcome from './pages/Welcome'
 import Login from './pages/Login'
