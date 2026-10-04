@@ -1,7 +1,4 @@
-
-import {
-  MOCK_ORGANIZADOR_ID,
-  addMockCampeonato,
+// TODO: trocar o mock por fetch quando a api do backend ficar pronta
 import {
   addMockCampeonato,
   findMockCampeonato,
@@ -17,6 +14,7 @@ export interface Campeonato {
   data_inicio: string
   encerrado: boolean
   organizador_id: number
+  // o backend ainda não manda esses dois, por isso são opcionais
   total_times?: number
   total_partidas?: number
 }
