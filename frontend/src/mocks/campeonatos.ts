@@ -8,7 +8,6 @@ export interface MockCampeonato {
 
 const MOCK_ORGANIZADOR_ID = 1
 
-// pra testar o erro da lista: localStorage.setItem('mock_falhar_campeonatos', '1') no console
 const MOCK_FAIL_STORAGE_KEY = 'mock_falhar_campeonatos'
 
 export function shouldMockFail(): boolean {
@@ -48,7 +47,6 @@ const MOCK_CAMPEONATOS: MockCampeonato[] = [
 
 let nextMockId = MOCK_CAMPEONATOS.length + 1
 
-// devolve cópia, igual um backend, pra tela não mexer no mock sem querer
 export function getMockCampeonatos(): MockCampeonato[] {
   return MOCK_CAMPEONATOS.map((campeonato) => ({ ...campeonato }))
 }
@@ -65,6 +63,7 @@ export function addMockCampeonato(nome: string, data_inicio: string): MockCampeo
     encerrado: false,
     organizador_id: MOCK_ORGANIZADOR_ID,
   }
+
   MOCK_CAMPEONATOS.push(campeonato)
   return { ...campeonato }
 }
