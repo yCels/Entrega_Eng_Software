@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.campeonato import CampeonatoCreate, CampeonatoUpdate, CampeonatoResponse
-from app.services import campeonato_service
+from app.schemas.classificacao import LinhaClassificacao
+from app.services import campeonato_service, classificacao_service
 from app.core.dependencies import get_current_user
 from app.models.usuario import Usuario
 
@@ -66,3 +67,12 @@ def encerrar_campeonato(
     current_user: Usuario = Depends(get_current_user),
 ):
     return campeonato_service.encerrar(db, campeonato_id, current_user.id)
+
+
+@router.get("/{campeonato_id}/classificacao", response_model=list[LinhaClassificacao])
+def obter_classificacao(
+    campeonato_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    return classificacao_service.gerar(db, campeonato_id, current_user.id)
