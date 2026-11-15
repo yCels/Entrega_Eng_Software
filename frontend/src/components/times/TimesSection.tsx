@@ -102,7 +102,8 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
   }
 
   return (
-    <section className={styles.panel}>
+    // id usado pelo link "Times" da barra lateral (/campeonatos/:id#times)
+    <section id="times" className={styles.panel}>
       <div className={styles.header}>
         <h2 className={styles.title}>
           Times
