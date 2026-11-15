@@ -1,0 +1,143 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px 150px;
+  gap: 8px;
+  align-items: start;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 84px minmax(0, 1fr);
+
+    & .nome {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.nome,
+.camisa,
+.posicao {
+  min-width: 0;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.list {
+  max-height: 340px;
+  margin: 0 -20px;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 12px 6px 20px;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.rowActive {
+  background: var(--accent-soft);
+}
+
+.numero {
+  flex-shrink: 0;
+  width: 32px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.info {
+  display: flex;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.nomeJogador {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.posicaoJogador {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.rowActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.excluir {
+  color: var(--danger);
+}
+
+.confirm {
+  display: flex;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.confirmText {
+  overflow-wrap: anywhere;
+
+  & strong {
+    font-weight: 600;
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 24px 0 8px;
+  text-align: center;
+
+  & > button {
+    margin-top: 12px;
+  }
+}
+
+.stateText {
+  padding: 24px 0 8px;
+  color: var(--text-muted);
+  text-align: center;
+
+  .state & {
+    padding: 0;
+  }
+}
+
+.errorTitle {
+  font-weight: 600;
+  color: var(--danger);
+}
