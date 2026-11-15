@@ -45,3 +45,13 @@ def placar_automatico(
     current_user: Usuario = Depends(get_current_user),
 ):
     return evento_service.calcular_placar(db, partida_id, current_user.id)
+
+
+@router.delete("/eventos/{evento_id}", status_code=204, tags=["Eventos"])
+def excluir_evento(
+    evento_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Exclui um evento lançado errado (o placar é recalculado automaticamente)."""
+    evento_service.excluir(db, evento_id, current_user.id)
