@@ -59,5 +59,6 @@ app/
 | GET/POST | `/api/campeonatos/{id}/times` | Lista e cria times |
 | PUT/DELETE | `/api/times/{id}` | Edita e exclui um time |
 | GET/POST | `/api/campeonatos/{id}/partidas` | Lista e agenda partidas |
+| POST | `/api/campeonatos/{id}/calendario` | Gera todas as partidas (todos contra todos) com o Builder Pattern |
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
 | GET | `/api/campeonatos/{id}/classificacao` | Tabela de classificação calculada |
