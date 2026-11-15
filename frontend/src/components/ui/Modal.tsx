@@ -8,9 +8,11 @@ type ModalProps = {
   onClose: () => void
   children: ReactNode
   busy?: boolean
+  // modal mais largo, pra conteúdo com lista (ex.: elenco)
+  wide?: boolean
 }
 
-function Modal({ title, description, onClose, children, busy = false }: ModalProps) {
+function Modal({ title, description, onClose, children, busy = false, wide = false }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -29,7 +31,7 @@ function Modal({ title, description, onClose, children, busy = false }: ModalPro
   return (
     <dialog
       ref={dialogRef}
-      className={styles.dialog}
+      className={wide ? `${styles.dialog} ${styles.wide}` : styles.dialog}
       onCancel={(event) => {
         // não deixa o navegador fechar sozinho no Esc, quem fecha é o estado do react
         event.preventDefault()

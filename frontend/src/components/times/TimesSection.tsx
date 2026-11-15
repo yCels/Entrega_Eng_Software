@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { criar, editar, excluir, listar, type Time } from '../../api/times'
+import ElencoModal from '../jogadores/ElencoModal'
 import ActionMenu from '../ui/ActionMenu'
 import { Button } from '../ui/Button'
 import { PlusIcon } from '../ui/Icons'
@@ -25,6 +26,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
   const [adding, setAdding] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const [elenco, setElenco] = useState<Time | null>(null)
   const [toEdit, setToEdit] = useState<Time | null>(null)
   const [toDelete, setToDelete] = useState<Time | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -160,6 +162,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
               <ActionMenu
                 label={`Ações de ${time.nome}`}
                 items={[
+                  { label: 'Elenco', onSelect: () => setElenco(time) },
                   { label: 'Editar', onSelect: () => setToEdit(time) },
                   {
                     label: 'Excluir',
@@ -175,6 +178,8 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
           ))}
         </ul>
       )}
+
+      {elenco && <ElencoModal time={elenco} onClose={() => setElenco(null)} />}
 
       {toEdit && (
         <TimeEditModal nomeAtual={toEdit.nome} onSubmit={handleEdit} onClose={() => setToEdit(null)} />

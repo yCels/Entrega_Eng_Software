@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.core.transacao import salvar
 from fastapi import HTTPException
 
+from app.models.evento_partida import EventoPartida
 from app.models.jogador import Jogador
 from app.models.time import Time
 from app.models.campeonato import Campeonato
@@ -38,9 +39,14 @@ def criar(db: Session, time_id: int, dados: JogadorCreate, user_id: int) -> Joga
 
 
 def listar(db: Session, time_id: int, user_id: int) -> list[Jogador]:
-    """Lista jogadores do time."""
+    """Lista jogadores do time pelo número da camisa (sem número no fim) e nome."""
     _verificar_time(db, time_id, user_id)
-    return db.query(Jogador).filter(Jogador.time_id == time_id).all()
+    return (
+        db.query(Jogador)
+        .filter(Jogador.time_id == time_id)
+        .order_by(Jogador.numero_camisa.is_(None), Jogador.numero_camisa, Jogador.nome)
+        .all()
+    )
 
 
 def obter(db: Session, jogador_id: int, user_id: int) -> Jogador:
@@ -55,19 +61,26 @@ def obter(db: Session, jogador_id: int, user_id: int) -> Jogador:
 def editar(db: Session, jogador_id: int, dados: JogadorUpdate, user_id: int) -> Jogador:
     """Atualiza dados do jogador."""
     jogador = obter(db, jogador_id, user_id)
-    if dados.nome is not None:
-        jogador.nome = dados.nome
-    if dados.numero_camisa is not None:
-        jogador.numero_camisa = dados.numero_camisa
-    if dados.posicao is not None:
-        jogador.posicao = dados.posicao
+    # exclude_unset: só mexe no que foi enviado. Assim mandar
+    # "numero_camisa": null apaga o número, e não mandar o campo mantém.
+    alteracoes = dados.model_dump(exclude_unset=True)
+    if "nome" in alteracoes and alteracoes["nome"] is None:
+        raise HTTPException(status_code=400, detail="O nome do jogador não pode ficar vazio")
+    for campo, valor in alteracoes.items():
+        setattr(jogador, campo, valor)
     salvar(db)
     db.refresh(jogador)
     return jogador
 
 
 def excluir(db: Session, jogador_id: int, user_id: int):
-    """Remove o jogador."""
+    """Remove o jogador. Quem já tem gol ou cartão registrado não pode sair do histórico."""
     jogador = obter(db, jogador_id, user_id)
+    tem_eventos = db.query(EventoPartida).filter(EventoPartida.jogador_id == jogador.id).first()
+    if tem_eventos:
+        raise HTTPException(
+            status_code=400,
+            detail="Não é possível excluir um jogador que tem gols ou cartões registrados",
+        )
     db.delete(jogador)
     salvar(db)
