@@ -63,3 +63,5 @@ app/
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
 | GET/PUT/DELETE | `/api/partidas/{id}` | Detalhe, remarcação (com validação de conflito) e exclusão |
 | GET | `/api/campeonatos/{id}/classificacao` | Tabela de classificação calculada |
+| GET/POST | `/api/partidas/{id}/eventos` | Lista e registra eventos (gol, cartão amarelo, cartão vermelho) |
+| DELETE | `/api/eventos/{id}` | Exclui um evento lançado errado |
