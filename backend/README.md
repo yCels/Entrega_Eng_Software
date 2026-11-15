@@ -61,4 +61,5 @@ app/
 | GET/POST | `/api/campeonatos/{id}/partidas` | Lista e agenda partidas |
 | POST | `/api/campeonatos/{id}/calendario` | Gera todas as partidas (todos contra todos) com o Builder Pattern |
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
+| GET/PUT/DELETE | `/api/partidas/{id}` | Detalhe, remarcação (com validação de conflito) e exclusão |
 | GET | `/api/campeonatos/{id}/classificacao` | Tabela de classificação calculada |
