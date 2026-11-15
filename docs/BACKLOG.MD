@@ -54,8 +54,8 @@ Quadro Kanban: [Jira](https://matheusdisabatino.atlassian.net/jira/software/proj
 | --- | --- | --- | --- |
 | 12 | Como organizador, quero cadastrar os times participantes de um campeonato, para que eu possa organizar quem vai disputar. | Alta | ✅ |
 | 13 | Como organizador, quero listar, editar e excluir os times de um campeonato, para que eu possa manter a informação sempre correta. | Média | ✅ |
-| 14 | Como organizador, quero cadastrar os jogadores de cada time, para que eu possa registrar o elenco completo. | Alta | 🟡 |
-| 15 | Como organizador, quero listar, editar e excluir jogadores de um time, para que o elenco fique sempre atualizado. | Média | 🟡 |
+| 14 | Como organizador, quero cadastrar os jogadores de cada time, para que eu possa registrar o elenco completo. | Alta | ✅ |
+| 15 | Como organizador, quero listar, editar e excluir jogadores de um time, para que o elenco fique sempre atualizado. | Média | ✅ |
 
 ## Agendamento de Partidas
 
@@ -92,7 +92,7 @@ Quadro Kanban: [Jira](https://matheusdisabatino.atlassian.net/jira/software/proj
 | --- | --- | --- | --- |
 | 25 | Como organizador, quero uma tela de login e cadastro, para que eu acesse o sistema pelo navegador. | Alta | ✅ |
 | 26 | Como organizador, quero uma tela de listagem e criação de campeonatos, para que eu gerencie meus campeonatos visualmente. | Alta | ✅ |
-| 27 | Como organizador, quero telas para gerenciar times e jogadores, para que eu não precise mexer diretamente na API. | Alta | 🟡 Times prontos, jogadores pendentes |
+| 27 | Como organizador, quero telas para gerenciar times e jogadores, para que eu não precise mexer diretamente na API. | Alta | ✅ |
 | 28 | Como organizador, quero uma tela de agendamento de partidas que me avise claramente quando houver conflito de agenda, para que eu entenda o motivo do erro. | Alta | ⬜ |
 | 29 | Como organizador, quero uma tela para lançar os eventos de uma partida, para que eu registre gols e cartões de forma simples. | Alta | ⬜ |
 | 30 | Como organizador, quero uma tela de classificação sempre atualizada, para que eu acompanhe o campeonato visualmente. | Alta | ⬜ |
