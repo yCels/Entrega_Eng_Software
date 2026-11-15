@@ -29,13 +29,13 @@ Com os dois rodando, acesse `http://localhost:5173`. A documentação da API fic
 | --- | --- |
 | RF — Criar campeonatos, cadastrar times e jogadores | ✅ Campeonatos e times na interface; jogadores na API |
 | RF — Agendar partidas sem conflito de horário/local ou de time | ✅ Na API |
-| RF — Registrar placares e eventos das partidas | 🔄 Próxima entrega |
-| RF — Gerar a tabela de classificação | 🔄 Próxima entrega |
+| RF — Registrar placares e eventos das partidas | ✅ Na API (placar calculado pelos gols); tela na próxima entrega |
+| RF — Gerar a tabela de classificação | ✅ Na API (só partidas finalizadas); tela na próxima entrega |
 | RNF — Restrições UNIQUE e validação transacional | ✅ UNIQUE e CHECK no banco, rollback nos services |
 | RNF — Builder Pattern na geração do calendário | ✅ Na API (`services/calendario_builder.py`) |
 | RNF — Service Layer | ✅ Regras de negócio na camada de services |
 | RNF — Bloqueio de conflitos de agenda no backend | ✅ No service e no banco |
-| RNF — Tabela ordenada por pontos e saldo | 🔄 Próxima entrega |
+| RNF — Tabela ordenada por pontos e saldo | ✅ Na API (`services/classificacao_service.py`) |
 
 ## Estrutura do repositório
 

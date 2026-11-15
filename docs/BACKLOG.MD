@@ -20,6 +20,21 @@ Quadro Kanban: [Jira](https://matheusdisabatino.atlassian.net/jira/software/proj
 - Jogadores, agendamento de partidas com bloqueio de conflito e eventos disponíveis na API
 - Restrições UNIQUE e CHECK no banco e validação transacional com rollback
 
+## Resumo da Entrega 2 (em andamento)
+
+Backend:
+
+- Login com o JWT em cookie HttpOnly, com logout (o token não fica mais no `localStorage`)
+- Classificação calculada automaticamente pelos eventos de gol, ordenada por pontos e saldo de gols
+- Builder Pattern na geração automática do calendário (todos contra todos, com opção de ida e volta)
+- Partidas: remarcação e exclusão com a mesma validação de conflito do agendamento
+- Partida finalizada: só ela conta na classificação, e trava eventos e remarcação até ser reaberta
+- Eventos: jogador precisa ser do time informado, tipo validado e exclusão de evento lançado errado
+- Campeonato encerrado não aceita mais mudanças em partidas e eventos
+- Testes automatizados com pytest rodando no GitHub Actions a cada PR
+
+Pendente: telas de jogadores, partidas, eventos e classificação.
+
 ---
 
 ## Modelagem e Infraestrutura
@@ -76,8 +91,8 @@ Quadro Kanban: [Jira](https://matheusdisabatino.atlassian.net/jira/software/proj
 
 | Rank | User Story | Prioridade | Status |
 | --- | --- | --- | --- |
-| 21 | Como organizador, quero visualizar a tabela de classificação do campeonato, para que eu acompanhe a posição de cada time. | Alta | ⬜ |
-| 22 | Como organizador, quero que a classificação seja calculada automaticamente (pontos, vitórias, empates, derrotas, saldo de gols), para que eu não precise calcular manualmente. | Alta | ⬜ |
+| 21 | Como organizador, quero visualizar a tabela de classificação do campeonato, para que eu acompanhe a posição de cada time. | Alta | 🟡 |
+| 22 | Como organizador, quero que a classificação seja calculada automaticamente (pontos, vitórias, empates, derrotas, saldo de gols), para que eu não precise calcular manualmente. | Alta | 🟡 |
 
 ## Padrões de Projeto e Arquitetura (Requisitos Não Funcionais)
 

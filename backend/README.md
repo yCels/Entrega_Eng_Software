@@ -64,8 +64,11 @@ app/
 | GET | `/api/auth/me` | Dados do usuário logado |
 | GET/POST | `/api/campeonatos/` | Lista e cria campeonatos |
 | GET/PUT/DELETE | `/api/campeonatos/{id}` | Detalhe, edição e exclusão |
+| PATCH | `/api/campeonatos/{id}/encerrar` | Encerra o campeonato (trava partidas e eventos) |
 | GET/POST | `/api/campeonatos/{id}/times` | Lista e cria times |
 | PUT/DELETE | `/api/times/{id}` | Edita e exclui um time |
+| GET/POST | `/api/times/{id}/jogadores` | Lista e cadastra jogadores do time |
+| PUT/DELETE | `/api/jogadores/{id}` | Edita e exclui um jogador |
 | GET/POST | `/api/campeonatos/{id}/partidas` | Lista e agenda partidas |
 | POST | `/api/campeonatos/{id}/calendario` | Gera todas as partidas (todos contra todos) com o Builder Pattern |
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
