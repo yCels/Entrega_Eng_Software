@@ -29,6 +29,14 @@ uvicorn app.main:app --reload
 
 As tabelas são criadas automaticamente ao iniciar. A documentação interativa fica em `http://localhost:8000/docs`; para as rotas protegidas, basta chamar `POST /api/auth/login`: o token fica salvo num cookie HttpOnly e o navegador envia ele automaticamente nas próximas requisições.
 
+## Testes
+
+```bash
+pytest -v
+```
+
+Os testes usam um banco SQLite em memória, então não precisam do PostgreSQL rodando. Há testes dos services (regras de negócio) e da API pelo `TestClient` (rotas, cookie de login e isolamento entre organizadores). O GitHub Actions roda o `pytest` em todo PR para a `dev` e a `main`.
+
 ## Arquitetura
 
 ```
