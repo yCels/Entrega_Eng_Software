@@ -12,7 +12,6 @@ from app.models.evento_partida import EventoPartida, TipoEvento
 from app.services import classificacao_service
 
 ONTEM = datetime.now() - timedelta(days=1)
-AMANHA = datetime.now() + timedelta(days=1)
 
 
 # ---------- funções de apoio pra montar os dados ----------
@@ -42,13 +41,14 @@ def criar_campeonato(db, nomes_times):
     return usuario, campeonato, times
 
 
-def criar_partida(db, campeonato, mandante, visitante, data_hora=ONTEM, local="Quadra"):
+def criar_partida(db, campeonato, mandante, visitante, data_hora=ONTEM, local="Quadra", finalizada=True):
     partida = Partida(
         data_hora=data_hora,
         local=local,
         campeonato_id=campeonato.id,
         time_mandante_id=mandante[0].id,
         time_visitante_id=visitante[0].id,
+        finalizada=finalizada,
     )
     db.add(partida)
     db.commit()
@@ -113,9 +113,11 @@ def test_cartao_nao_conta_como_gol(db):
     assert linha_do(tabela, "A")["empates"] == 1
 
 
-def test_partida_futura_nao_entra_na_tabela(db):
+def test_partida_nao_finalizada_nao_entra_na_tabela(db):
     usuario, campeonato, times = criar_campeonato(db, ["A", "B"])
-    criar_partida(db, campeonato, times["A"], times["B"], data_hora=AMANHA)
+    # já passou do horário e tem gol, mas ainda não foi finalizada
+    partida = criar_partida(db, campeonato, times["A"], times["B"], finalizada=False)
+    lancar(db, partida, times["A"], 2)
 
     tabela = classificacao_service.gerar(db, campeonato.id, usuario.id)
 

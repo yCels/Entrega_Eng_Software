@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, CheckConstraint
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, CheckConstraint, false
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -18,8 +18,11 @@ class Partida(Base):
     campeonato_id = Column(Integer, ForeignKey("campeonatos.id"), nullable=False)
     time_mandante_id = Column(Integer, ForeignKey("times.id"), nullable=False)
     time_visitante_id = Column(Integer, ForeignKey("times.id"), nullable=False)
+    # só partida finalizada entra na classificação; depois de finalizada
+    # não aceita mais eventos nem remarcação (até ser reaberta)
+    finalizada = Column(Boolean, nullable=False, default=False, server_default=false())
 
-    campeonato = relationship("Campeonato", back_populates="partidas")
+    campeonato =relationship("Campeonato", back_populates="partidas")
     time_mandante = relationship("Time", foreign_keys=[time_mandante_id], back_populates="partidas_mandante")
     time_visitante = relationship("Time", foreign_keys=[time_visitante_id], back_populates="partidas_visitante")
     eventos = relationship("EventoPartida", back_populates="partida", cascade="all, delete-orphan")

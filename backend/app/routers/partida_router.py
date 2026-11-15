@@ -57,6 +57,26 @@ def excluir_partida(
     partida_service.excluir(db, partida_id, current_user.id)
 
 
+@router.patch("/partidas/{partida_id}/finalizar", response_model=PartidaResponse, tags=["Partidas"])
+def finalizar_partida(
+    partida_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Encerra a partida: o placar passa a contar na classificação e os eventos ficam travados."""
+    return partida_service.finalizar(db, partida_id, current_user.id)
+
+
+@router.patch("/partidas/{partida_id}/reabrir", response_model=PartidaResponse, tags=["Partidas"])
+def reabrir_partida(
+    partida_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Desfaz a finalização para corrigir eventos ou remarcar."""
+    return partida_service.reabrir(db, partida_id, current_user.id)
+
+
 @router.get(
     "/campeonatos/{campeonato_id}/partidas",
     response_model=list[PartidaResponse],

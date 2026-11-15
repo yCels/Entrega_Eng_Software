@@ -24,6 +24,7 @@ class PartidaResponse(BaseModel):
     time_mandante_nome: str
     time_visitante_id: int
     time_visitante_nome: str
+    finalizada: bool
 
     class Config:
         from_attributes = True

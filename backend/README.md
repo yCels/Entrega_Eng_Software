@@ -62,6 +62,7 @@ app/
 | POST | `/api/campeonatos/{id}/calendario` | Gera todas as partidas (todos contra todos) com o Builder Pattern |
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
 | GET/PUT/DELETE | `/api/partidas/{id}` | Detalhe, remarcação (com validação de conflito) e exclusão |
+| PATCH | `/api/partidas/{id}/finalizar` e `/reabrir` | Finaliza a partida (só então ela conta na classificação) ou desfaz a finalização |
 | GET | `/api/campeonatos/{id}/classificacao` | Tabela de classificação calculada |
 | GET/POST | `/api/partidas/{id}/eventos` | Lista e registra eventos (gol, cartão amarelo, cartão vermelho) |
 | DELETE | `/api/eventos/{id}` | Exclui um evento lançado errado |
