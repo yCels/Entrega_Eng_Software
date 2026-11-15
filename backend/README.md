@@ -27,7 +27,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-As tabelas são criadas automaticamente ao iniciar. A documentação interativa fica em `http://localhost:8000/docs`; para as rotas protegidas, faça login e cole o `access_token` no botão **Authorize**.
+As tabelas são criadas automaticamente ao iniciar. A documentação interativa fica em `http://localhost:8000/docs`; para as rotas protegidas, basta chamar `POST /api/auth/login`: o token fica salvo num cookie HttpOnly e o navegador envia ele automaticamente nas próximas requisições.
 
 ## Arquitetura
 
@@ -51,7 +51,8 @@ app/
 | Método | Rota | Descrição |
 | --- | --- | --- |
 | POST | `/api/auth/cadastro` | Cria uma conta |
-| POST | `/api/auth/login` | Retorna o token JWT |
+| POST | `/api/auth/login` | Faz login e grava o JWT em cookie HttpOnly |
+| POST | `/api/auth/logout` | Apaga o cookie e encerra a sessão |
 | GET | `/api/auth/me` | Dados do usuário logado |
 | GET/POST | `/api/campeonatos/` | Lista e cria campeonatos |
 | GET/PUT/DELETE | `/api/campeonatos/{id}` | Detalhe, edição e exclusão |
@@ -59,3 +60,4 @@ app/
 | PUT/DELETE | `/api/times/{id}` | Edita e exclui um time |
 | GET/POST | `/api/campeonatos/{id}/partidas` | Lista e agenda partidas |
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
+| GET | `/api/campeonatos/{id}/classificacao` | Tabela de classificação calculada |
