@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from fastapi import HTTPException
@@ -24,6 +26,15 @@ def _verificar_nao_encerrado(campeonato: Campeonato):
     """Campeonato encerrado não aceita mais mudanças na agenda."""
     if campeonato.encerrado:
         raise HTTPException(status_code=400, detail="O campeonato está encerrado")
+
+
+def _verificar_nao_finalizada(partida: Partida):
+    """Partida finalizada já conta na classificação: precisa ser reaberta para mudar."""
+    if partida.finalizada:
+        raise HTTPException(
+            status_code=400,
+            detail="A partida está finalizada. Reabra a partida para alterá-la.",
+        )
 
 
 def _validar_times(db: Session, campeonato_id: int, dados: PartidaCreate):
@@ -133,6 +144,7 @@ def editar(db: Session, partida_id: int, dados: PartidaUpdate, user_id: int) -> 
     """Remarca a partida (data, local e/ou times) com as mesmas validações do agendamento."""
     partida = obter(db, partida_id, user_id)
     _verificar_nao_encerrado(partida.campeonato)
+    _verificar_nao_finalizada(partida)
 
     # campos não enviados (ou enviados como null) mantêm o valor atual
     alteracoes = {k: v for k, v in dados.model_dump().items() if v is not None}
@@ -170,5 +182,32 @@ def excluir(db: Session, partida_id: int, user_id: int):
     """Exclui a partida e, em cascata, os eventos dela."""
     partida = obter(db, partida_id, user_id)
     _verificar_nao_encerrado(partida.campeonato)
+    _verificar_nao_finalizada(partida)
     db.delete(partida)
     salvar(db)
+
+
+def finalizar(db: Session, partida_id: int, user_id: int) -> Partida:
+    """Marca a partida como finalizada: o placar dela passa a contar na classificação."""
+    partida = obter(db, partida_id, user_id)
+    _verificar_nao_encerrado(partida.campeonato)
+    if partida.finalizada:
+        raise HTTPException(status_code=400, detail="A partida já está finalizada")
+    if partida.data_hora > datetime.now():
+        raise HTTPException(status_code=400, detail="A partida ainda não começou")
+    partida.finalizada = True
+    salvar(db)
+    db.refresh(partida)
+    return partida
+
+
+def reabrir(db: Session, partida_id: int, user_id: int) -> Partida:
+    """Desfaz a finalização (ex.: finalizada por engano ou com evento faltando)."""
+    partida = obter(db, partida_id, user_id)
+    _verificar_nao_encerrado(partida.campeonato)
+    if not partida.finalizada:
+        raise HTTPException(status_code=400, detail="A partida não está finalizada")
+    partida.finalizada = False
+    salvar(db)
+    db.refresh(partida)
+    return partida

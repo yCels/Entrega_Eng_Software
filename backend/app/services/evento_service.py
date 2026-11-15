@@ -23,10 +23,16 @@ def _verificar_partida(db: Session, partida_id: int, user_id: int) -> Partida:
     return partida
 
 
-def _verificar_nao_encerrado(partida: Partida):
-    """Campeonato encerrado tem o resultado final: não aceita mudar eventos."""
+def _verificar_partida_aberta(partida: Partida):
+    """Eventos só mudam com o campeonato em andamento e a partida não finalizada."""
     if partida.campeonato.encerrado:
         raise HTTPException(status_code=400, detail="O campeonato está encerrado")
+    # o placar de uma partida finalizada já conta na classificação
+    if partida.finalizada:
+        raise HTTPException(
+            status_code=400,
+            detail="A partida está finalizada. Reabra a partida para alterar os eventos.",
+        )
 
 
 def registrar(db: Session, partida_id: int, dados: EventoPartidaCreate, user_id: int) -> EventoPartida:
@@ -35,7 +41,7 @@ def registrar(db: Session, partida_id: int, dados: EventoPartidaCreate, user_id:
     O tipo já chega validado pelo schema (enum TipoEvento).
     """
     partida = _verificar_partida(db, partida_id, user_id)
-    _verificar_nao_encerrado(partida)
+    _verificar_partida_aberta(partida)
 
     # valida que o time participa desta partida
     if dados.time_id not in (partida.time_mandante_id, partida.time_visitante_id):
@@ -79,7 +85,7 @@ def excluir(db: Session, evento_id: int, user_id: int):
     if not evento:
         raise HTTPException(status_code=404, detail="Evento não encontrado")
     partida = _verificar_partida(db, evento.partida_id, user_id)
-    _verificar_nao_encerrado(partida)
+    _verificar_partida_aberta(partida)
     db.delete(evento)
     salvar(db)
 
