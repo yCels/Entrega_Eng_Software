@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
@@ -67,13 +65,13 @@ def gerar(db: Session, campeonato_id: int, user_id: int) -> list[dict]:
             "saldo_gols": 0,
         }
 
-    # por enquanto só conta partida que já passou do horário
-    # TODO: trocar pelo campo finalizada quando entrar na Partida
+    # só partida finalizada conta: uma partida que já passou do horário mas
+    # ainda não teve os eventos lançados não pode virar um 0x0 na tabela
     partidas = (
         db.query(Partida)
         .filter(
             Partida.campeonato_id == campeonato_id,
-            Partida.data_hora <= datetime.now(),
+            Partida.finalizada.is_(True),
         )
         .all()
     )
