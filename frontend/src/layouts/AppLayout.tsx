@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { getUsuarioLogado, logout, type UsuarioLogado } from '../api/auth'
 import Brand from '../components/ui/Brand'
 import {
@@ -16,10 +16,15 @@ import styles from './AppLayout.module.css'
 
 const DESKTOP_QUERY = '(min-width: 901px)'
 
-type DisabledItem = { label: string; icon: ReactNode }
+type CampeonatoItem = {
+  label: string
+  icon: ReactNode
+  // seção da página do campeonato (id do elemento); sem secao, o item fica desativado
+  secao?: string
+}
 
-const CAMPEONATO_ITEMS: DisabledItem[] = [
-  { label: 'Times', icon: <UsersIcon /> },
+const CAMPEONATO_ITEMS: CampeonatoItem[] = [
+  { label: 'Times', icon: <UsersIcon />, secao: 'times' },
   { label: 'Partidas', icon: <CalendarIcon /> },
   { label: 'Classificação', icon: <TableIcon /> },
 ]
@@ -30,6 +35,9 @@ function AppLayout() {
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const sidebarRef = useRef<HTMLElement>(null)
   const navigate = useNavigate()
+  const location = useLocation()
+  // id do campeonato aberto: os itens do grupo "Campeonato" só funcionam dentro dele
+  const campeonatoAberto = useMatch('/campeonatos/:id')?.params.id
 
   function closeMenu(returnFocus = false) {
     setMenuOpen(false)
@@ -116,8 +124,11 @@ function AppLayout() {
             <li>
               <NavLink
                 to="/campeonatos"
+                // dentro de um campeonato, se uma seção foi escolhida (#times), o destaque vai pra ela
                 className={({ isActive }) =>
-                  isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem
+                  isActive && !(campeonatoAberto && location.hash)
+                    ? `${styles.navItem} ${styles.navItemActive}`
+                    : styles.navItem
                 }
                 onClick={() => closeMenu()}
               >
@@ -131,10 +142,29 @@ function AppLayout() {
           <ul className={styles.navList}>
             {CAMPEONATO_ITEMS.map((item) => (
               <li key={item.label}>
-                <span className={`${styles.navItem} ${styles.navItemDisabled}`}>
-                  {item.icon}
-                  {item.label}
-                </span>
+                {campeonatoAberto && item.secao ? (
+                  <Link
+                    to={`/campeonatos/${campeonatoAberto}#${item.secao}`}
+                    className={
+                      location.hash === `#${item.secao}`
+                        ? `${styles.navItem} ${styles.navItemActive}`
+                        : styles.navItem
+                    }
+                    aria-current={location.hash === `#${item.secao}` ? 'location' : undefined}
+                    onClick={() => closeMenu()}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span
+                    className={`${styles.navItem} ${styles.navItemDisabled}`}
+                    title={item.secao ? 'Abra um campeonato primeiro' : 'Em breve'}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </span>
+                )}
               </li>
             ))}
           </ul>
