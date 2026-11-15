@@ -1,9 +1,7 @@
-import { clearToken, getToken } from './auth'
-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
-// rotas onde 401 é só "senha errada", aí não pode mandar pro login
-const PUBLIC_PATHS = ['/auth/login', '/auth/cadastro']
+// 401 nessas rotas não redireciona pro login
+const PUBLIC_PATHS = ['/auth/login', '/auth/cadastro', '/auth/me']
 
 type ErrorBody = {
   detail?: string | { msg: string }[]
@@ -18,10 +16,6 @@ function getErrorMessage(body: ErrorBody | null): string {
 
 export async function request(path: string, method = 'GET', body?: object): Promise<unknown> {
   const headers = new Headers({ 'Content-Type': 'application/json' })
-  const token = getToken()
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`)
-  }
 
   let response: Response
   try {
@@ -29,13 +23,13 @@ export async function request(path: string, method = 'GET', body?: object): Prom
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
+      credentials: 'include', // envia o cookie com o token
     })
   } catch {
     throw new Error('Não foi possível conectar ao servidor.')
   }
 
   if (response.status === 401 && !PUBLIC_PATHS.includes(path)) {
-    clearToken()
     window.location.href = '/login'
   }
 

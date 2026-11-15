@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { clearToken, getUsuarioLogado, type UsuarioLogado } from '../api/auth'
+import { getUsuarioLogado, logout, type UsuarioLogado } from '../api/auth'
 import Brand from '../components/ui/Brand'
 import {
   CalendarIcon,
@@ -72,8 +72,8 @@ function AppLayout() {
     }
   }, [menuOpen])
 
-  function handleLogout() {
-    clearToken()
+  async function handleLogout() {
+    await logout().catch(() => {})
     navigate('/login')
   }
 
