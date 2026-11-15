@@ -10,3 +10,5 @@ frontend/dist/
 .idea/
 
 /documentacao/
+
+.pytest_cache/
