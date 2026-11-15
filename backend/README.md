@@ -60,4 +60,5 @@ app/
 | PUT/DELETE | `/api/times/{id}` | Edita e exclui um time |
 | GET/POST | `/api/campeonatos/{id}/partidas` | Lista e agenda partidas |
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
+| GET/PUT/DELETE | `/api/partidas/{id}` | Detalhe, remarcação (com validação de conflito) e exclusão |
 | GET | `/api/campeonatos/{id}/classificacao` | Tabela de classificação calculada |
