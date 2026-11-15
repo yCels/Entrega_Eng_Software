@@ -84,7 +84,7 @@ Quadro Kanban: [Jira](https://matheusdisabatino.atlassian.net/jira/software/proj
 | Rank | User Story | Prioridade | Status |
 | --- | --- | --- | --- |
 | 23 | Como equipe de desenvolvimento, quero a lógica de negócio separada em uma camada de serviço (Service Layer), para que o código fique organizado e testável. | Média | ✅ |
-| 24 | Como equipe de desenvolvimento, quero aplicar o Builder Pattern na geração de partidas/calendário, para que o requisito de padrão de projeto do professor seja atendido. | Média | ⬜ |
+| 24 | Como equipe de desenvolvimento, quero aplicar o Builder Pattern na geração de partidas/calendário, para que o requisito de padrão de projeto do professor seja atendido. | Média | ✅ |
 
 ## Frontend — Telas e Navegação
 
