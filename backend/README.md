@@ -61,3 +61,5 @@ app/
 | GET/POST | `/api/campeonatos/{id}/partidas` | Lista e agenda partidas |
 | GET | `/api/partidas/{id}/placar` | Placar calculado pelos eventos de gol |
 | GET | `/api/campeonatos/{id}/classificacao` | Tabela de classificação calculada |
+| GET/POST | `/api/partidas/{id}/eventos` | Lista e registra eventos (gol, cartão amarelo, cartão vermelho) |
+| DELETE | `/api/eventos/{id}` | Exclui um evento lançado errado |
