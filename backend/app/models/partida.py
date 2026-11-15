@@ -23,3 +23,12 @@ class Partida(Base):
     time_mandante = relationship("Time", foreign_keys=[time_mandante_id], back_populates="partidas_mandante")
     time_visitante = relationship("Time", foreign_keys=[time_visitante_id], back_populates="partidas_visitante")
     eventos = relationship("EventoPartida", back_populates="partida", cascade="all, delete-orphan")
+
+    # usados pelo PartidaResponse: o front mostra os nomes sem cruzar ids
+    @property
+    def time_mandante_nome(self) -> str:
+        return self.time_mandante.nome
+
+    @property
+    def time_visitante_nome(self) -> str:
+        return self.time_visitante.nome
