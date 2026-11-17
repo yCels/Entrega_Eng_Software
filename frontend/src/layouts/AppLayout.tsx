@@ -26,7 +26,7 @@ type CampeonatoItem = {
 const CAMPEONATO_ITEMS: CampeonatoItem[] = [
   { label: 'Times', icon: <UsersIcon />, secao: 'times' },
   { label: 'Partidas', icon: <CalendarIcon /> },
-  { label: 'Classificação', icon: <TableIcon /> },
+  { label: 'Classificação', icon: <TableIcon />, secao: 'classificacao' },
 ]
 
 function AppLayout() {
