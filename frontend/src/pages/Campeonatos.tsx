@@ -70,8 +70,8 @@ function Campeonatos() {
 
   const visibleCampeonatos = filterCampeonatos(campeonatos, statusFilter, search)
 
-  const totalTimes = campeonatos.reduce((total, campeonato) => total + (campeonato.total_times ?? 0), 0)
-  const totalPartidas = campeonatos.reduce((total, campeonato) => total + (campeonato.total_partidas ?? 0), 0)
+  const totalTimes = campeonatos.reduce((total, campeonato) => total + campeonato.total_times, 0)
+  const totalPartidas = campeonatos.reduce((total, campeonato) => total + campeonato.total_partidas, 0)
 
   // os 3 primeiros blocos do placar também filtram a lista
   const loaded = status === 'ready'
