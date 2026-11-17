@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { obter, type Campeonato } from '../api/campeonatos'
 import TimesSection from '../components/times/TimesSection'
 import { Button } from '../components/ui/Button'
@@ -16,6 +16,14 @@ function CampeonatoDetalhe() {
   const [loadError, setLoadError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
   const [totalTimes, setTotalTimes] = useState<number | null>(null)
+  const location = useLocation()
+
+  // links da barra lateral (ex.: #times) levam até a seção depois que a página carrega;
+  // o key muda a cada clique, então clicar de novo no mesmo item também rola
+  useEffect(() => {
+    if (status !== 'ready' || !location.hash) return
+    document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [status, location.hash, location.key])
 
   useEffect(() => {
     obter(campeonatoId)
