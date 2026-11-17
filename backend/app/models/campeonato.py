@@ -16,3 +16,12 @@ class Campeonato(Base):
     organizador = relationship("Usuario", back_populates="campeonatos")
     times = relationship("Time", back_populates="campeonato", cascade="all, delete-orphan")
     partidas = relationship("Partida", back_populates="campeonato", cascade="all, delete-orphan")
+
+    # usados na lista de campeonatos (contadores de times e partidas)
+    @property
+    def total_times(self) -> int:
+        return len(self.times)
+
+    @property
+    def total_partidas(self) -> int:
+        return len(self.partidas)

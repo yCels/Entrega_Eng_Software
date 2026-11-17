@@ -18,6 +18,8 @@ class CampeonatoResponse(BaseModel):
     data_inicio : date
     encerrado : bool
     organizador_id : int
+    total_times: int
+    total_partidas: int
 
     class Config:
         from_attributes = True
