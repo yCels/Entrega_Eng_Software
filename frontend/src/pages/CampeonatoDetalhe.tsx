@@ -94,7 +94,7 @@ function CampeonatoDetalhe() {
             </div>
             <div className={styles.stat}>
               <dt>Partidas</dt>
-              <dd className="num">{String(campeonato.total_partidas ?? 0).padStart(2, '0')}</dd>
+              <dd className="num">{String(campeonato.total_partidas).padStart(2, '0')}</dd>
             </div>
           </dl>
 
