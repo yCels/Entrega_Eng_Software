@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { obterClassificacao, type LinhaClassificacao } from '../../api/classificacao'
 import { Button } from '../ui/Button'
+import { SkeletonLista } from '../ui/Skeleton'
 import styles from './ClassificacaoSection.module.css'
 
 type ClassificacaoSectionProps = {
@@ -42,13 +43,7 @@ function ClassificacaoSection({ campeonatoId }: ClassificacaoSectionProps) {
         <h2 className={styles.title}>Classificação</h2>
       </div>
 
-      {status === 'loading' && (
-        <div className={styles.state}>
-          <p className={styles.stateText} role="status">
-            Carregando...
-          </p>
-        </div>
-      )}
+      {status === 'loading' && <SkeletonLista linhas={4} />}
 
       {status === 'error' && (
         <div className={styles.state} role="alert">

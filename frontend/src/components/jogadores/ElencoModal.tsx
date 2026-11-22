@@ -5,6 +5,7 @@ import { Button } from '../ui/Button'
 import { PlusIcon } from '../ui/Icons'
 import Input, { FormError } from '../ui/Input'
 import Modal, { ModalActions } from '../ui/Modal'
+import { SkeletonLista } from '../ui/Skeleton'
 import styles from './ElencoModal.module.css'
 
 type ElencoModalProps = {
@@ -215,11 +216,7 @@ function ElencoModal({ time, onClose }: ElencoModalProps) {
         </form>
       )}
 
-      {status === 'loading' && (
-        <p className={styles.stateText} role="status">
-          Carregando...
-        </p>
-      )}
+      {status === 'loading' && <SkeletonLista linhas={3} />}
 
       {status === 'error' && (
         <div className={styles.state} role="alert">
