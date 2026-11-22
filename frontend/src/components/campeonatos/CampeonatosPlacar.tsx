@@ -1,8 +1,9 @@
+import { Skeleton } from '../ui/Skeleton'
 import styles from './CampeonatosPlacar.module.css'
 
 export type PlacarItem = {
   label: string
-  // fica null enquanto carrega, aí mostra --
+  // fica null enquanto carrega, aí mostra o skeleton
   value: number | null
   onClick?: () => void
   active?: boolean
@@ -19,7 +20,11 @@ function CampeonatosPlacar({ items }: CampeonatosPlacarProps) {
         const content = (
           <>
             <span className={styles.label}>{item.label}</span>
-            <span className={styles.value}>{item.value === null ? '--' : String(item.value).padStart(2, '0')}</span>
+            {item.value === null ? (
+              <Skeleton width={44} height={30} />
+            ) : (
+              <span className={styles.value}>{String(item.value).padStart(2, '0')}</span>
+            )}
           </>
         )
 

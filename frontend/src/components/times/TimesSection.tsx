@@ -6,6 +6,7 @@ import { Button } from '../ui/Button'
 import { PlusIcon } from '../ui/Icons'
 import Input, { FormError } from '../ui/Input'
 import Modal, { ModalActions } from '../ui/Modal'
+import { SkeletonLista } from '../ui/Skeleton'
 import TimeEditModal from './TimeEditModal'
 import styles from './TimesSection.module.css'
 
@@ -131,13 +132,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
         </form>
       )}
 
-      {status === 'loading' && (
-        <div className={styles.state}>
-          <p className={styles.stateText} role="status">
-            Carregando...
-          </p>
-        </div>
-      )}
+      {status === 'loading' && <SkeletonLista linhas={3} />}
 
       {status === 'error' && (
         <div className={styles.state} role="alert">

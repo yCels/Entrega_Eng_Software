@@ -5,6 +5,7 @@ import ClassificacaoSection from '../components/classificacao/ClassificacaoSecti
 import TimesSection from '../components/times/TimesSection'
 import { Button } from '../components/ui/Button'
 import { ArrowLeftIcon } from '../components/ui/Icons'
+import { Skeleton, SkeletonLista } from '../components/ui/Skeleton'
 import StatusIndicator from '../components/ui/StatusIndicator'
 import { formatDate } from '../utils/campeonatos'
 import styles from './CampeonatoDetalhe.module.css'
@@ -51,11 +52,13 @@ function CampeonatoDetalhe() {
       </Link>
 
       {status === 'loading' && (
-        <div className={styles.panel}>
-          <p className={styles.panelText} role="status">
-            Carregando...
-          </p>
-        </div>
+        <>
+          <Skeleton width={260} height={28} className={styles.title} />
+          <Skeleton height={84} />
+          <div className={styles.skeletonPanel}>
+            <SkeletonLista linhas={3} />
+          </div>
+        </>
       )}
 
       {status === 'error' && (
@@ -91,7 +94,9 @@ function CampeonatoDetalhe() {
             </div>
             <div className={styles.stat}>
               <dt>Times</dt>
-              <dd className="num">{totalTimes === null ? '--' : String(totalTimes).padStart(2, '0')}</dd>
+              <dd className="num">
+                {totalTimes === null ? <Skeleton width={28} height={20} /> : String(totalTimes).padStart(2, '0')}
+              </dd>
             </div>
             <div className={styles.stat}>
               <dt>Partidas</dt>
