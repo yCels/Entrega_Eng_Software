@@ -6,6 +6,7 @@ import { PlusIcon } from '../ui/Icons'
 import Input, { FormError } from '../ui/Input'
 import Modal, { ModalActions } from '../ui/Modal'
 import { SkeletonLista } from '../ui/Skeleton'
+import { useToast } from '../ui/useToast'
 import styles from './ElencoModal.module.css'
 
 type ElencoModalProps = {
@@ -47,6 +48,7 @@ function ElencoModal({ time, onClose }: ElencoModalProps) {
   const [toDelete, setToDelete] = useState<Jogador | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const mostrarToast = useToast()
 
   useEffect(() => {
     listar(time.id)
@@ -115,9 +117,11 @@ function ElencoModal({ time, onClose }: ElencoModalProps) {
       if (editando) {
         const atualizado = await editar(editando.id, dados)
         setJogadores((atual) => ordenar(atual.map((j) => (j.id === atualizado.id ? atualizado : j))))
+        mostrarToast('success', 'Jogador atualizado.')
       } else {
         const novo = await criar(time.id, dados)
         setJogadores((atual) => ordenar([...atual, novo]))
+        mostrarToast('success', 'Jogador adicionado.')
       }
       limparFormulario()
       nomeRef.current?.focus()
@@ -139,6 +143,7 @@ function ElencoModal({ time, onClose }: ElencoModalProps) {
       setJogadores((atual) => atual.filter((j) => j.id !== toDelete.id))
       if (editando?.id === toDelete.id) limparFormulario()
       setToDelete(null)
+      mostrarToast('success', 'Jogador excluído.')
     } catch (err) {
       setDeleteError((err as Error).message)
     } finally {

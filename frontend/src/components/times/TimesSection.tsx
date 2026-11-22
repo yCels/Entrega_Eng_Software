@@ -7,6 +7,7 @@ import { PlusIcon } from '../ui/Icons'
 import Input, { FormError } from '../ui/Input'
 import Modal, { ModalActions } from '../ui/Modal'
 import { SkeletonLista } from '../ui/Skeleton'
+import { useToast } from '../ui/useToast'
 import TimeEditModal from './TimeEditModal'
 import styles from './TimesSection.module.css'
 
@@ -32,6 +33,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
   const [toDelete, setToDelete] = useState<Time | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const mostrarToast = useToast()
 
   useEffect(() => {
     listar(campeonatoId)
@@ -70,6 +72,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
       const time = await criar(campeonatoId, novoNome.trim())
       setTimes((current) => [...current, time])
       setNovoNome('')
+      mostrarToast('success', 'Time adicionado.')
     } catch (err) {
       setAddError((err as Error).message)
     } finally {
@@ -83,6 +86,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
     const updated = await editar(toEdit.id, nome)
     setTimes((current) => current.map((time) => (time.id === updated.id ? updated : time)))
     setToEdit(null)
+    mostrarToast('success', 'Time atualizado.')
   }
 
   async function handleConfirmDelete() {
@@ -95,6 +99,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
       await excluir(toDelete.id)
       setTimes((current) => current.filter((time) => time.id !== toDelete.id))
       setToDelete(null)
+      mostrarToast('success', 'Time excluído.')
     } catch (err) {
       setDeleteError((err as Error).message)
     } finally {
