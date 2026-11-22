@@ -12,6 +12,7 @@ import {
   UsersIcon,
 } from '../components/ui/Icons'
 import ThemeToggle from '../components/ui/ThemeToggle'
+import ToastProvider from '../components/ui/ToastProvider'
 import styles from './AppLayout.module.css'
 
 const DESKTOP_QUERY = '(min-width: 901px)'
@@ -86,111 +87,113 @@ function AppLayout() {
   }
 
   return (
-    <div className={styles.shell}>
-      <header className={styles.mobileBar} inert={menuOpen || undefined}>
-        <button
-          ref={menuButtonRef}
-          type="button"
-          className={styles.iconButton}
-          onClick={() => setMenuOpen(true)}
-          aria-label="Abrir menu"
-        >
-          <MenuIcon size={18} />
-        </button>
-        <Link to="/campeonatos" className={styles.brandLink}>
-          <Brand />
-        </Link>
-      </header>
-
-      {menuOpen && <div className={styles.overlay} onClick={() => closeMenu(true)} />}
-
-      <aside ref={sidebarRef} className={styles.sidebar} data-open={menuOpen}>
-        <div className={styles.sidebarHeader}>
-          <Link to="/campeonatos" className={styles.brandLink} onClick={() => closeMenu()}>
+    <ToastProvider>
+      <div className={styles.shell}>
+        <header className={styles.mobileBar} inert={menuOpen || undefined}>
+          <button
+            ref={menuButtonRef}
+            type="button"
+            className={styles.iconButton}
+            onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menu"
+          >
+            <MenuIcon size={18} />
+          </button>
+          <Link to="/campeonatos" className={styles.brandLink}>
             <Brand />
           </Link>
-          <button
-            type="button"
-            className={`${styles.iconButton} ${styles.closeButton}`}
-            onClick={() => closeMenu(true)}
-            aria-label="Fechar menu"
-          >
-            <CloseIcon size={18} />
-          </button>
-        </div>
+        </header>
 
-        <nav className={styles.nav}>
-          <ul className={styles.navList}>
-            <li>
-              <NavLink
-                to="/campeonatos"
-                // dentro de um campeonato, se uma seção foi escolhida (#times), o destaque vai pra ela
-                className={({ isActive }) =>
-                  isActive && !(campeonatoAberto && location.hash)
-                    ? `${styles.navItem} ${styles.navItemActive}`
-                    : styles.navItem
-                }
-                onClick={() => closeMenu()}
-              >
-                <TrophyIcon />
-                Campeonatos
-              </NavLink>
-            </li>
-          </ul>
+        {menuOpen && <div className={styles.overlay} onClick={() => closeMenu(true)} />}
 
-          <p className={styles.navGroupLabel}>Campeonato</p>
-          <ul className={styles.navList}>
-            {CAMPEONATO_ITEMS.map((item) => (
-              <li key={item.label}>
-                {campeonatoAberto && item.secao ? (
-                  <Link
-                    to={`/campeonatos/${campeonatoAberto}#${item.secao}`}
-                    className={
-                      location.hash === `#${item.secao}`
-                        ? `${styles.navItem} ${styles.navItemActive}`
-                        : styles.navItem
-                    }
-                    aria-current={location.hash === `#${item.secao}` ? 'location' : undefined}
-                    onClick={() => closeMenu()}
-                  >
-                    {item.icon}
-                    {item.label}
-                  </Link>
-                ) : (
-                  <span
-                    className={`${styles.navItem} ${styles.navItemDisabled}`}
-                    title={item.secao ? 'Abra um campeonato primeiro' : 'Em breve'}
-                  >
-                    {item.icon}
-                    {item.label}
-                  </span>
-                )}
+        <aside ref={sidebarRef} className={styles.sidebar} data-open={menuOpen}>
+          <div className={styles.sidebarHeader}>
+            <Link to="/campeonatos" className={styles.brandLink} onClick={() => closeMenu()}>
+              <Brand />
+            </Link>
+            <button
+              type="button"
+              className={`${styles.iconButton} ${styles.closeButton}`}
+              onClick={() => closeMenu(true)}
+              aria-label="Fechar menu"
+            >
+              <CloseIcon size={18} />
+            </button>
+          </div>
+
+          <nav className={styles.nav}>
+            <ul className={styles.navList}>
+              <li>
+                <NavLink
+                  to="/campeonatos"
+                  // dentro de um campeonato, se uma seção foi escolhida (#times), o destaque vai pra ela
+                  className={({ isActive }) =>
+                    isActive && !(campeonatoAberto && location.hash)
+                      ? `${styles.navItem} ${styles.navItemActive}`
+                      : styles.navItem
+                  }
+                  onClick={() => closeMenu()}
+                >
+                  <TrophyIcon />
+                  Campeonatos
+                </NavLink>
               </li>
-            ))}
-          </ul>
-        </nav>
+            </ul>
 
-        <div className={styles.sidebarFooter}>
-          {usuario && (
-            <div className={styles.user}>
-              <span className={styles.userName}>{usuario.nome}</span>
-              <span className={styles.userEmail}>{usuario.email}</span>
-            </div>
-          )}
-          <ThemeToggle withLabel />
-          <button type="button" className={styles.footerButton} onClick={handleLogout}>
-            <LogOutIcon />
-            Sair
-          </button>
-        </div>
-      </aside>
+            <p className={styles.navGroupLabel}>Campeonato</p>
+            <ul className={styles.navList}>
+              {CAMPEONATO_ITEMS.map((item) => (
+                <li key={item.label}>
+                  {campeonatoAberto && item.secao ? (
+                    <Link
+                      to={`/campeonatos/${campeonatoAberto}#${item.secao}`}
+                      className={
+                        location.hash === `#${item.secao}`
+                          ? `${styles.navItem} ${styles.navItemActive}`
+                          : styles.navItem
+                      }
+                      aria-current={location.hash === `#${item.secao}` ? 'location' : undefined}
+                      onClick={() => closeMenu()}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <span
+                      className={`${styles.navItem} ${styles.navItemDisabled}`}
+                      title={item.secao ? 'Abra um campeonato primeiro' : 'Em breve'}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-      <main className={styles.main} inert={menuOpen || undefined}>
-        <div className={styles.container}>
-          <Outlet />
-        </div>
-      </main>
-    </div>
+          <div className={styles.sidebarFooter}>
+            {usuario && (
+              <div className={styles.user}>
+                <span className={styles.userName}>{usuario.nome}</span>
+                <span className={styles.userEmail}>{usuario.email}</span>
+              </div>
+            )}
+            <ThemeToggle withLabel />
+            <button type="button" className={styles.footerButton} onClick={handleLogout}>
+              <LogOutIcon />
+              Sair
+            </button>
+          </div>
+        </aside>
+
+        <main className={styles.main} inert={menuOpen || undefined}>
+          <div className={styles.container}>
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </ToastProvider>
   )
 }
 

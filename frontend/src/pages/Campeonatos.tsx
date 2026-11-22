@@ -15,15 +15,13 @@ import { PlusIcon, SearchIcon } from '../components/ui/Icons'
 import Input, { FormError } from '../components/ui/Input'
 import Modal, { ModalActions } from '../components/ui/Modal'
 import { SkeletonLista } from '../components/ui/Skeleton'
+import { useToast } from '../components/ui/useToast'
 import { filterCampeonatos } from '../utils/campeonatos'
 import styles from './Campeonatos.module.css'
 
 type LoadStatus = 'loading' | 'error' | 'ready'
 type StatusFilter = 'todos' | 'andamento' | 'encerrados'
 type FormState = { mode: 'create' | 'edit'; campeonato?: Campeonato }
-type ToastMessage = { type: 'success' | 'error'; message: string }
-
-const TOAST_DURATION_MS = 3500
 
 const LIST_TITLES = {
   todos: 'Todos os campeonatos',
@@ -46,7 +44,7 @@ function Campeonatos() {
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  const [toast, setToast] = useState<ToastMessage | null>(null)
+  const mostrarToast = useToast()
 
   useEffect(() => {
     listar()
@@ -59,12 +57,6 @@ function Campeonatos() {
         setStatus('error')
       })
   }, [reloadKey])
-
-  useEffect(() => {
-    if (!toast) return
-    const timer = setTimeout(() => setToast(null), TOAST_DURATION_MS)
-    return () => clearTimeout(timer)
-  }, [toast])
 
   const emAndamento = campeonatos.filter((campeonato) => !campeonato.encerrado).length
   const encerrados = campeonatos.length - emAndamento
@@ -99,10 +91,6 @@ function Campeonatos() {
     { label: 'Partidas', value: loaded ? totalPartidas : null },
   ]
 
-  function showToast(type: 'success' | 'error', message: string) {
-    setToast({ type, message })
-  }
-
   function replaceCampeonato(updated: Campeonato) {
     setCampeonatos((current) =>
       current.map((campeonato) => (campeonato.id === updated.id ? updated : campeonato)),
@@ -113,11 +101,11 @@ function Campeonatos() {
     if (formState?.campeonato) {
       const updated = await editar(formState.campeonato.id, values)
       replaceCampeonato(updated)
-      showToast('success', 'Campeonato atualizado.')
+      mostrarToast('success', 'Campeonato atualizado.')
     } else {
       const created = await criar(values)
       setCampeonatos((current) => [...current, created])
-      showToast('success', 'Campeonato criado.')
+      mostrarToast('success', 'Campeonato criado.')
     }
     setFormState(null)
   }
@@ -128,9 +116,9 @@ function Campeonatos() {
     try {
       const updated = await editar(campeonato.id, { encerrado: !campeonato.encerrado })
       replaceCampeonato(updated)
-      showToast('success', updated.encerrado ? 'Campeonato encerrado.' : 'Campeonato reaberto.')
+      mostrarToast('success', updated.encerrado ? 'Campeonato encerrado.' : 'Campeonato reaberto.')
     } catch (err) {
-      showToast('error', (err as Error).message)
+      mostrarToast('error', (err as Error).message)
     } finally {
       setBusyIds((current) => current.filter((id) => id !== campeonato.id))
     }
@@ -146,7 +134,7 @@ function Campeonatos() {
       await excluir(toDelete.id)
       setCampeonatos((current) => current.filter((campeonato) => campeonato.id !== toDelete.id))
       setToDelete(null)
-      showToast('success', 'Campeonato excluído.')
+      mostrarToast('success', 'Campeonato excluído.')
     } catch (err) {
       setDeleteError((err as Error).message)
     } finally {
@@ -282,12 +270,6 @@ function Campeonatos() {
             </Button>
           </ModalActions>
         </Modal>
-      )}
-
-      {toast && (
-        <p className={toast.type === 'error' ? `${styles.toast} ${styles.toastError}` : styles.toast} role="status">
-          {toast.message}
-        </p>
       )}
     </>
   )
