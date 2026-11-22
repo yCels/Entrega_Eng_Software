@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { obter, type Campeonato } from '../api/campeonatos'
+import ClassificacaoSection from '../components/classificacao/ClassificacaoSection'
 import TimesSection from '../components/times/TimesSection'
 import { Button } from '../components/ui/Button'
 import { ArrowLeftIcon } from '../components/ui/Icons'
@@ -99,6 +100,7 @@ function CampeonatoDetalhe() {
           </dl>
 
           <TimesSection campeonatoId={campeonato.id} onCountChange={setTotalTimes} />
+          <ClassificacaoSection campeonatoId={campeonato.id} />
         </>
       )}
     </>
