@@ -14,6 +14,7 @@ import { Button } from '../components/ui/Button'
 import { PlusIcon, SearchIcon } from '../components/ui/Icons'
 import Input, { FormError } from '../components/ui/Input'
 import Modal, { ModalActions } from '../components/ui/Modal'
+import { SkeletonLista } from '../components/ui/Skeleton'
 import { filterCampeonatos } from '../utils/campeonatos'
 import styles from './Campeonatos.module.css'
 
@@ -174,10 +175,8 @@ function Campeonatos() {
       <CampeonatosPlacar items={placarItems} />
 
       {status === 'loading' && (
-        <div className={`${styles.panel} ${styles.state}`}>
-          <p className={styles.panelText} role="status">
-            Carregando...
-          </p>
+        <div className={styles.panel}>
+          <SkeletonLista linhas={4} />
         </div>
       )}
 
