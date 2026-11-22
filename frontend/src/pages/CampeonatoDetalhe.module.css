@@ -98,3 +98,12 @@
 .errorTitle {
   color: var(--danger);
 }
+
+/* moldura da lista de mentira enquanto a página carrega */
+.skeletonPanel {
+  margin-top: 24px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
