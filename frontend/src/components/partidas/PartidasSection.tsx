@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarPartidas, type Partida } from '../../api/partidas'
 import { Button } from '../ui/Button'
-import { PlusIcon } from '../ui/Icons'
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '../ui/Icons'
 import { SkeletonLista } from '../ui/Skeleton'
 import { useToast } from '../ui/useToast'
 import AgendarPartidaModal from './AgendarPartidaModal'
@@ -45,6 +45,7 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
   const [reloadKey, setReloadKey] = useState(0)
   const [agendando, setAgendando] = useState(false)
   const [gerando, setGerando] = useState(false)
+  const [diaEscolhido, setDiaEscolhido] = useState<string | null>(null)
   const mostrarToast = useToast()
 
   useEffect(() => {
@@ -74,14 +75,23 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
       [...atual, nova].sort((a, b) => a.data_hora.localeCompare(b.data_hora) || a.id - b.id),
     )
     setAgendando(false)
+    setDiaEscolhido(nova.data_hora.slice(0, 10))
     mostrarToast('success', 'Partida agendada.')
   }
 
   function handleGerado(novas: Partida[]) {
     setPartidas(novas)
     setGerando(false)
+    setDiaEscolhido(null)
     mostrarToast('success', `Calendário gerado: ${novas.length} partidas.`)
   }
+
+  // sem dia escolhido nas setas, abre no primeiro dia que ainda tem jogo a disputar
+  const grupos = agruparPorDia(partidas)
+  let indice = grupos.findIndex((g) => g.dia === diaEscolhido)
+  if (indice === -1) indice = grupos.findIndex((g) => g.partidas.some((p) => !p.finalizada))
+  if (indice === -1) indice = grupos.length - 1
+  const grupo = grupos[indice]
 
   return (
     <section id="partidas" className={styles.panel}>
@@ -123,36 +133,58 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
         </div>
       )}
 
-      {status === 'ready' &&
-        agruparPorDia(partidas).map((grupo) => (
-          <div key={grupo.dia}>
-            <h3 className={styles.dia}>{formatarDia(grupo.partidas[0].data_hora)}</h3>
-            <ul className={styles.list}>
-              {grupo.partidas.map((partida) => (
-                <li key={partida.id} className={styles.row}>
-                  <div className={styles.quando}>
-                    <time className="num" dateTime={partida.data_hora}>
-                      {formatarHora(partida.data_hora)}
-                    </time>
-                    <span className={styles.local}>{partida.local}</span>
-                  </div>
-
-                  <div className={styles.confronto}>
-                    <span className={styles.mandante}>{partida.time_mandante_nome}</span>
-                    <span className={`num ${styles.placar}`}>
-                      {partida.finalizada ? `${partida.gols_mandante} - ${partida.gols_visitante}` : 'x'}
-                    </span>
-                    <span className={styles.visitante}>{partida.time_visitante_nome}</span>
-                  </div>
-
-                  <span className={partida.finalizada ? `${styles.status} ${styles.finalizada}` : styles.status}>
-                    {partida.finalizada ? 'Finalizada' : 'Agendada'}
-                  </span>
-                </li>
-              ))}
-            </ul>
+      {status === 'ready' && grupo && (
+        <>
+          <div className={styles.navegacao}>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<ChevronLeftIcon />}
+              aria-label="Dia anterior"
+              disabled={indice === 0}
+              onClick={() => setDiaEscolhido(grupos[indice - 1].dia)}
+            />
+            <h3 className={styles.dia}>
+              {formatarDia(grupo.partidas[0].data_hora)}
+              <span className={styles.pagina}>
+                {indice + 1} de {grupos.length}
+              </span>
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<ChevronRightIcon />}
+              aria-label="Próximo dia"
+              disabled={indice === grupos.length - 1}
+              onClick={() => setDiaEscolhido(grupos[indice + 1].dia)}
+            />
           </div>
-        ))}
+          <ul className={styles.list}>
+            {grupo.partidas.map((partida) => (
+              <li key={partida.id} className={styles.row}>
+                <div className={styles.quando}>
+                  <time className="num" dateTime={partida.data_hora}>
+                    {formatarHora(partida.data_hora)}
+                  </time>
+                  <span className={styles.local}>{partida.local}</span>
+                </div>
+
+                <div className={styles.confronto}>
+                  <span className={styles.mandante}>{partida.time_mandante_nome}</span>
+                  <span className={`num ${styles.placar}`}>
+                    {partida.finalizada ? `${partida.gols_mandante} - ${partida.gols_visitante}` : 'x'}
+                  </span>
+                  <span className={styles.visitante}>{partida.time_visitante_nome}</span>
+                </div>
+
+                <span className={partida.finalizada ? `${styles.status} ${styles.finalizada}` : styles.status}>
+                  {partida.finalizada ? 'Finalizada' : 'Agendada'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       {agendando && (
         <AgendarPartidaModal
