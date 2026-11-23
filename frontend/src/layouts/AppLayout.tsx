@@ -26,7 +26,7 @@ type CampeonatoItem = {
 
 const CAMPEONATO_ITEMS: CampeonatoItem[] = [
   { label: 'Times', icon: <UsersIcon />, secao: 'times' },
-  { label: 'Partidas', icon: <CalendarIcon /> },
+  { label: 'Partidas', icon: <CalendarIcon />, secao: 'partidas' },
   { label: 'Classificação', icon: <TableIcon />, secao: 'classificacao' },
 ]
 
