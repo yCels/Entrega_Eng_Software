@@ -1,6 +1,7 @@
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, CheckConstraint, false
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.models.evento_partida import TipoEvento
 
 
 class Partida(Base):
@@ -35,3 +36,15 @@ class Partida(Base):
     @property
     def time_visitante_nome(self) -> str:
         return self.time_visitante.nome
+
+    # placar calculado pelos eventos de gol, pra lista de partidas não precisar de uma chamada por jogo
+    @property
+    def gols_mandante(self) -> int:
+        return self._contar_gols(self.time_mandante_id)
+
+    @property
+    def gols_visitante(self) -> int:
+        return self._contar_gols(self.time_visitante_id)
+
+    def _contar_gols(self, time_id: int) -> int:
+        return sum(1 for e in self.eventos if e.time_id == time_id and e.tipo == TipoEvento.GOL)
