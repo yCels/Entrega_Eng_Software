@@ -14,6 +14,17 @@ export interface Partida {
   gols_visitante: number
 }
 
+export interface PartidaCreate {
+  data_hora: string
+  local: string
+  time_mandante_id: number
+  time_visitante_id: number
+}
+
 export async function listarPartidas(campeonatoId: number): Promise<Partida[]> {
   return (await request(`/campeonatos/${campeonatoId}/partidas`)) as Partida[]
+}
+
+export async function agendarPartida(campeonatoId: number, dados: PartidaCreate): Promise<Partida> {
+  return (await request(`/campeonatos/${campeonatoId}/partidas`, 'POST', dados)) as Partida
 }
