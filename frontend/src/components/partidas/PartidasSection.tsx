@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
 import { listarPartidas, type Partida } from '../../api/partidas'
 import { Button } from '../ui/Button'
+import { PlusIcon } from '../ui/Icons'
 import { SkeletonLista } from '../ui/Skeleton'
+import { useToast } from '../ui/useToast'
+import AgendarPartidaModal from './AgendarPartidaModal'
 import styles from './PartidasSection.module.css'
 
 type PartidasSectionProps = {
   campeonatoId: number
+  encerrado: boolean
+  // a página usa pra atualizar a contagem na faixa de cima
+  onCountChange: (count: number) => void
 }
 
 function formatarDia(dataHora: string) {
@@ -31,11 +37,13 @@ function agruparPorDia(partidas: Partida[]) {
   return grupos
 }
 
-function PartidasSection({ campeonatoId }: PartidasSectionProps) {
+function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSectionProps) {
   const [partidas, setPartidas] = useState<Partida[]>([])
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
+  const [agendando, setAgendando] = useState(false)
+  const mostrarToast = useToast()
 
   useEffect(() => {
     listarPartidas(campeonatoId)
@@ -49,9 +57,22 @@ function PartidasSection({ campeonatoId }: PartidasSectionProps) {
       })
   }, [campeonatoId, reloadKey])
 
+  useEffect(() => {
+    if (status === 'ready') onCountChange(partidas.length)
+  }, [partidas, status, onCountChange])
+
   function handleRetry() {
     setStatus('loading')
     setReloadKey(reloadKey + 1)
+  }
+
+  function handleAgendada(nova: Partida) {
+    // mantém a mesma ordem da API: por data e depois por id
+    setPartidas((atual) =>
+      [...atual, nova].sort((a, b) => a.data_hora.localeCompare(b.data_hora) || a.id - b.id),
+    )
+    setAgendando(false)
+    mostrarToast('success', 'Partida agendada.')
   }
 
   return (
@@ -61,6 +82,11 @@ function PartidasSection({ campeonatoId }: PartidasSectionProps) {
           Partidas
           {status === 'ready' && <span className={styles.count}>{String(partidas.length).padStart(2, '0')}</span>}
         </h2>
+        {status === 'ready' && !encerrado && (
+          <Button variant="primary" size="sm" icon={<PlusIcon />} onClick={() => setAgendando(true)}>
+            Agendar partida
+          </Button>
+        )}
       </div>
 
       {status === 'loading' && <SkeletonLista linhas={3} />}
@@ -111,6 +137,15 @@ function PartidasSection({ campeonatoId }: PartidasSectionProps) {
             </ul>
           </div>
         ))}
+
+      {agendando && (
+        <AgendarPartidaModal
+          campeonatoId={campeonatoId}
+          partidas={partidas}
+          onAgendada={handleAgendada}
+          onClose={() => setAgendando(false)}
+        />
+      )}
     </section>
   )
 }
