@@ -8,12 +8,27 @@ type PartidasSectionProps = {
   campeonatoId: number
 }
 
-function formatarData(dataHora: string) {
-  return new Date(dataHora).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+function formatarDia(dataHora: string) {
+  return new Date(dataHora).toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' })
 }
 
 function formatarHora(dataHora: string) {
   return new Date(dataHora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
+// cada rodada do calendário gerado cai num dia, então agrupar por data separa as rodadas
+function agruparPorDia(partidas: Partida[]) {
+  const grupos: { dia: string; partidas: Partida[] }[] = []
+  for (const partida of partidas) {
+    const dia = partida.data_hora.slice(0, 10)
+    const ultimo = grupos[grupos.length - 1]
+    if (ultimo && ultimo.dia === dia) {
+      ultimo.partidas.push(partida)
+    } else {
+      grupos.push({ dia, partidas: [partida] })
+    }
+  }
+  return grupos
 }
 
 function PartidasSection({ campeonatoId }: PartidasSectionProps) {
@@ -66,32 +81,36 @@ function PartidasSection({ campeonatoId }: PartidasSectionProps) {
         </div>
       )}
 
-      {status === 'ready' && partidas.length > 0 && (
-        <ul className={styles.list}>
-          {partidas.map((partida) => (
-            <li key={partida.id} className={styles.row}>
-              <div className={styles.quando}>
-                <time className="num" dateTime={partida.data_hora}>
-                  {formatarData(partida.data_hora)} · {formatarHora(partida.data_hora)}
-                </time>
-                <span className={styles.local}>{partida.local}</span>
-              </div>
+      {status === 'ready' &&
+        agruparPorDia(partidas).map((grupo) => (
+          <div key={grupo.dia}>
+            <h3 className={styles.dia}>{formatarDia(grupo.partidas[0].data_hora)}</h3>
+            <ul className={styles.list}>
+              {grupo.partidas.map((partida) => (
+                <li key={partida.id} className={styles.row}>
+                  <div className={styles.quando}>
+                    <time className="num" dateTime={partida.data_hora}>
+                      {formatarHora(partida.data_hora)}
+                    </time>
+                    <span className={styles.local}>{partida.local}</span>
+                  </div>
 
-              <div className={styles.confronto}>
-                <span className={styles.mandante}>{partida.time_mandante_nome}</span>
-                <span className={`num ${styles.placar}`}>
-                  {partida.finalizada ? `${partida.gols_mandante} - ${partida.gols_visitante}` : 'x'}
-                </span>
-                <span className={styles.visitante}>{partida.time_visitante_nome}</span>
-              </div>
+                  <div className={styles.confronto}>
+                    <span className={styles.mandante}>{partida.time_mandante_nome}</span>
+                    <span className={`num ${styles.placar}`}>
+                      {partida.finalizada ? `${partida.gols_mandante} - ${partida.gols_visitante}` : 'x'}
+                    </span>
+                    <span className={styles.visitante}>{partida.time_visitante_nome}</span>
+                  </div>
 
-              <span className={partida.finalizada ? `${styles.status} ${styles.finalizada}` : styles.status}>
-                {partida.finalizada ? 'Finalizada' : 'Agendada'}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+                  <span className={partida.finalizada ? `${styles.status} ${styles.finalizada}` : styles.status}>
+                    {partida.finalizada ? 'Finalizada' : 'Agendada'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
     </section>
   )
 }
