@@ -19,6 +19,7 @@ function CampeonatoDetalhe() {
   const [loadError, setLoadError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
   const [totalTimes, setTotalTimes] = useState<number | null>(null)
+  const [totalPartidas, setTotalPartidas] = useState<number | null>(null)
   const location = useLocation()
 
   // links da barra lateral (ex.: #times) levam até a seção depois que a página carrega;
@@ -101,12 +102,18 @@ function CampeonatoDetalhe() {
             </div>
             <div className={styles.stat}>
               <dt>Partidas</dt>
-              <dd className="num">{String(campeonato.total_partidas).padStart(2, '0')}</dd>
+              <dd className="num">
+                {String(totalPartidas ?? campeonato.total_partidas).padStart(2, '0')}
+              </dd>
             </div>
           </dl>
 
           <TimesSection campeonatoId={campeonato.id} onCountChange={setTotalTimes} />
-          <PartidasSection campeonatoId={campeonato.id} />
+          <PartidasSection
+            campeonatoId={campeonato.id}
+            encerrado={campeonato.encerrado}
+            onCountChange={setTotalPartidas}
+          />
           <ClassificacaoSection campeonatoId={campeonato.id} />
         </>
       )}
