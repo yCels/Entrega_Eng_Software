@@ -5,6 +5,7 @@ import { PlusIcon } from '../ui/Icons'
 import { SkeletonLista } from '../ui/Skeleton'
 import { useToast } from '../ui/useToast'
 import AgendarPartidaModal from './AgendarPartidaModal'
+import GerarCalendarioModal from './GerarCalendarioModal'
 import styles from './PartidasSection.module.css'
 
 type PartidasSectionProps = {
@@ -43,6 +44,7 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
   const [loadError, setLoadError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
   const [agendando, setAgendando] = useState(false)
+  const [gerando, setGerando] = useState(false)
   const mostrarToast = useToast()
 
   useEffect(() => {
@@ -75,6 +77,12 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
     mostrarToast('success', 'Partida agendada.')
   }
 
+  function handleGerado(novas: Partida[]) {
+    setPartidas(novas)
+    setGerando(false)
+    mostrarToast('success', `Calendário gerado: ${novas.length} partidas.`)
+  }
+
   return (
     <section id="partidas" className={styles.panel}>
       <div className={styles.header}>
@@ -83,9 +91,17 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
           {status === 'ready' && <span className={styles.count}>{String(partidas.length).padStart(2, '0')}</span>}
         </h2>
         {status === 'ready' && !encerrado && (
-          <Button variant="primary" size="sm" icon={<PlusIcon />} onClick={() => setAgendando(true)}>
-            Agendar partida
-          </Button>
+          <div className={styles.acoes}>
+            {/* o back só gera o calendário de um campeonato sem partidas */}
+            {partidas.length === 0 && (
+              <Button variant="secondary" size="sm" onClick={() => setGerando(true)}>
+                Gerar calendário
+              </Button>
+            )}
+            <Button variant="primary" size="sm" icon={<PlusIcon />} onClick={() => setAgendando(true)}>
+              Agendar partida
+            </Button>
+          </div>
         )}
       </div>
 
@@ -144,6 +160,14 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
           partidas={partidas}
           onAgendada={handleAgendada}
           onClose={() => setAgendando(false)}
+        />
+      )}
+
+      {gerando && (
+        <GerarCalendarioModal
+          campeonatoId={campeonatoId}
+          onGerado={handleGerado}
+          onClose={() => setGerando(false)}
         />
       )}
     </section>

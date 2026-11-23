@@ -17,6 +17,11 @@
   border-bottom: 1px solid var(--border);
 }
 
+.acoes {
+  display: flex;
+  gap: 8px;
+}
+
 .title {
   display: flex;
   align-items: baseline;
