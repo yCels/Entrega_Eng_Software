@@ -23,9 +23,16 @@ def _verificar_time(db: Session, time_id: int, user_id: int) -> Time:
     return time
 
 
+def _verificar_nao_encerrado(time: Time):
+    """Campeonato encerrado não aceita mais mudanças no elenco."""
+    if time.campeonato.encerrado:
+        raise HTTPException(status_code=400, detail="O campeonato está encerrado")
+
+
 def criar(db: Session, time_id: int, dados: JogadorCreate, user_id: int) -> Jogador:
     """Cadastra jogador no time."""
-    _verificar_time(db, time_id, user_id)
+    time = _verificar_time(db, time_id, user_id)
+    _verificar_nao_encerrado(time)
     novo_jogador = Jogador(
         nome=dados.nome,
         numero_camisa=dados.numero_camisa,
@@ -61,6 +68,7 @@ def obter(db: Session, jogador_id: int, user_id: int) -> Jogador:
 def editar(db: Session, jogador_id: int, dados: JogadorUpdate, user_id: int) -> Jogador:
     """Atualiza dados do jogador."""
     jogador = obter(db, jogador_id, user_id)
+    _verificar_nao_encerrado(jogador.time)
     # exclude_unset: só mexe no que foi enviado. Assim mandar
     # "numero_camisa": null apaga o número, e não mandar o campo mantém.
     alteracoes = dados.model_dump(exclude_unset=True)
@@ -76,6 +84,7 @@ def editar(db: Session, jogador_id: int, dados: JogadorUpdate, user_id: int) -> 
 def excluir(db: Session, jogador_id: int, user_id: int):
     """Remove o jogador. Quem já tem gol ou cartão registrado não pode sair do histórico."""
     jogador = obter(db, jogador_id, user_id)
+    _verificar_nao_encerrado(jogador.time)
     tem_eventos = db.query(EventoPartida).filter(EventoPartida.jogador_id == jogador.id).first()
     if tem_eventos:
         raise HTTPException(
