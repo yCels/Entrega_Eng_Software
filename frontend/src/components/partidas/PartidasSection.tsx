@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
-import { listarPartidas, type Partida } from '../../api/partidas'
+import {
+  excluirPartida,
+  finalizarPartida,
+  listarPartidas,
+  reabrirPartida,
+  type Partida,
+} from '../../api/partidas'
+import ActionMenu from '../ui/ActionMenu'
 import { Button } from '../ui/Button'
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '../ui/Icons'
+import { FormError } from '../ui/Input'
+import Modal, { ModalActions } from '../ui/Modal'
 import { SkeletonLista } from '../ui/Skeleton'
 import { useToast } from '../ui/useToast'
 import AgendarPartidaModal from './AgendarPartidaModal'
@@ -13,6 +22,8 @@ type PartidasSectionProps = {
   encerrado: boolean
   // a página usa pra atualizar a contagem na faixa de cima
   onCountChange: (count: number) => void
+  // chamado quando uma partida é finalizada ou reaberta, pra classificação recarregar
+  onResultadoChange: () => void
 }
 
 function formatarDia(dataHora: string) {
@@ -38,14 +49,25 @@ function agruparPorDia(partidas: Partida[]) {
   return grupos
 }
 
-function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSectionProps) {
+// mesma ordem da API: por data e depois por id
+function ordenar(partidas: Partida[]) {
+  return [...partidas].sort((a, b) => a.data_hora.localeCompare(b.data_hora) || a.id - b.id)
+}
+
+function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoChange }: PartidasSectionProps) {
   const [partidas, setPartidas] = useState<Partida[]>([])
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
+  const [diaEscolhido, setDiaEscolhido] = useState<string | null>(null)
+
   const [agendando, setAgendando] = useState(false)
   const [gerando, setGerando] = useState(false)
-  const [diaEscolhido, setDiaEscolhido] = useState<string | null>(null)
+  const [remarcando, setRemarcando] = useState<Partida | null>(null)
+  const [ocupadaId, setOcupadaId] = useState<number | null>(null)
+  const [toDelete, setToDelete] = useState<Partida | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const mostrarToast = useToast()
 
   useEffect(() => {
@@ -69,14 +91,22 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
     setReloadKey(reloadKey + 1)
   }
 
+  function substituir(atualizada: Partida) {
+    setPartidas((atual) => ordenar(atual.map((p) => (p.id === atualizada.id ? atualizada : p))))
+  }
+
   function handleAgendada(nova: Partida) {
-    // mantém a mesma ordem da API: por data e depois por id
-    setPartidas((atual) =>
-      [...atual, nova].sort((a, b) => a.data_hora.localeCompare(b.data_hora) || a.id - b.id),
-    )
+    setPartidas((atual) => ordenar([...atual, nova]))
     setAgendando(false)
     setDiaEscolhido(nova.data_hora.slice(0, 10))
     mostrarToast('success', 'Partida agendada.')
+  }
+
+  function handleRemarcada(atualizada: Partida) {
+    substituir(atualizada)
+    setRemarcando(null)
+    setDiaEscolhido(atualizada.data_hora.slice(0, 10))
+    mostrarToast('success', 'Partida remarcada.')
   }
 
   function handleGerado(novas: Partida[]) {
@@ -84,6 +114,63 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
     setGerando(false)
     setDiaEscolhido(null)
     mostrarToast('success', `Calendário gerado: ${novas.length} partidas.`)
+  }
+
+  async function alternarFinalizada(partida: Partida) {
+    setOcupadaId(partida.id)
+    try {
+      const atualizada = partida.finalizada
+        ? await reabrirPartida(partida.id)
+        : await finalizarPartida(partida.id)
+      substituir(atualizada)
+      // fica no mesmo dia, senão a lista pularia pra próxima rodada a disputar
+      setDiaEscolhido(atualizada.data_hora.slice(0, 10))
+      onResultadoChange()
+      mostrarToast('success', atualizada.finalizada ? 'Partida finalizada.' : 'Partida reaberta.')
+    } catch (err) {
+      mostrarToast('error', (err as Error).message)
+    } finally {
+      setOcupadaId(null)
+    }
+  }
+
+  async function handleConfirmDelete() {
+    if (!toDelete) return
+
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await excluirPartida(toDelete.id)
+      setPartidas((atual) => atual.filter((p) => p.id !== toDelete.id))
+      setToDelete(null)
+      mostrarToast('success', 'Partida excluída.')
+    } catch (err) {
+      setDeleteError((err as Error).message)
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  // finalizada só pode ser reaberta; o back não deixa finalizar antes do horário do jogo
+  function acoesDa(partida: Partida) {
+    if (partida.finalizada) {
+      return [{ label: 'Reabrir', onSelect: () => alternarFinalizada(partida) }]
+    }
+    const acoes = [{ label: 'Remarcar', onSelect: () => setRemarcando(partida) }]
+    if (new Date(partida.data_hora) <= new Date()) {
+      acoes.push({ label: 'Finalizar', onSelect: () => alternarFinalizada(partida) })
+    }
+    return [
+      ...acoes,
+      {
+        label: 'Excluir',
+        danger: true,
+        onSelect: () => {
+          setDeleteError(null)
+          setToDelete(partida)
+        },
+      },
+    ]
   }
 
   // sem dia escolhido nas setas, abre no primeiro dia que ainda tem jogo a disputar
@@ -180,6 +267,14 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
                 <span className={partida.finalizada ? `${styles.status} ${styles.finalizada}` : styles.status}>
                   {partida.finalizada ? 'Finalizada' : 'Agendada'}
                 </span>
+
+                {!encerrado && (
+                  <ActionMenu
+                    label={`Ações de ${partida.time_mandante_nome} x ${partida.time_visitante_nome}`}
+                    disabled={ocupadaId === partida.id}
+                    items={acoesDa(partida)}
+                  />
+                )}
               </li>
             ))}
           </ul>
@@ -190,8 +285,18 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
         <AgendarPartidaModal
           campeonatoId={campeonatoId}
           partidas={partidas}
-          onAgendada={handleAgendada}
+          onSalva={handleAgendada}
           onClose={() => setAgendando(false)}
+        />
+      )}
+
+      {remarcando && (
+        <AgendarPartidaModal
+          campeonatoId={campeonatoId}
+          partidas={partidas}
+          partida={remarcando}
+          onSalva={handleRemarcada}
+          onClose={() => setRemarcando(null)}
         />
       )}
 
@@ -201,6 +306,33 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange }: PartidasSec
           onGerado={handleGerado}
           onClose={() => setGerando(false)}
         />
+      )}
+
+      {toDelete && (
+        <Modal
+          title="Excluir partida"
+          description={
+            <>
+              Tem certeza que deseja excluir{' '}
+              <strong>
+                {toDelete.time_mandante_nome} x {toDelete.time_visitante_nome}
+              </strong>
+              ? Os gols e cartões dela também são apagados.
+            </>
+          }
+          onClose={() => setToDelete(null)}
+          busy={deleting}
+        >
+          {deleteError && <FormError>{deleteError}</FormError>}
+          <ModalActions>
+            <Button variant="secondary" onClick={() => setToDelete(null)} disabled={deleting}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={handleConfirmDelete} loading={deleting} loadingText="Excluindo...">
+              Excluir
+            </Button>
+          </ModalActions>
+        </Modal>
       )}
     </section>
   )

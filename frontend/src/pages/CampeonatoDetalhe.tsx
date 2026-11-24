@@ -20,6 +20,7 @@ function CampeonatoDetalhe() {
   const [reloadKey, setReloadKey] = useState(0)
   const [totalTimes, setTotalTimes] = useState<number | null>(null)
   const [totalPartidas, setTotalPartidas] = useState<number | null>(null)
+  const [versaoResultados, setVersaoResultados] = useState(0)
   const location = useLocation()
 
   // links da barra lateral (ex.: #times) levam até a seção depois que a página carrega;
@@ -113,8 +114,9 @@ function CampeonatoDetalhe() {
             campeonatoId={campeonato.id}
             encerrado={campeonato.encerrado}
             onCountChange={setTotalPartidas}
+            onResultadoChange={() => setVersaoResultados((v) => v + 1)}
           />
-          <ClassificacaoSection campeonatoId={campeonato.id} />
+          <ClassificacaoSection campeonatoId={campeonato.id} versao={versaoResultados} />
         </>
       )}
     </>
