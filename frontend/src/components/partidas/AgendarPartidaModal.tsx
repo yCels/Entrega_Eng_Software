@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { agendarPartida, type Partida } from '../../api/partidas'
+import { agendarPartida, editarPartida, type Partida } from '../../api/partidas'
 import { listar as listarTimes, type Time } from '../../api/times'
 import { Button } from '../ui/Button'
 import Input, { FormError } from '../ui/Input'
@@ -11,7 +11,9 @@ import styles from './AgendarPartidaModal.module.css'
 type AgendarPartidaModalProps = {
   campeonatoId: number
   partidas: Partida[]
-  onAgendada: (partida: Partida) => void
+  // com partida, o modal remarca ela em vez de agendar uma nova
+  partida?: Partida
+  onSalva: (partida: Partida) => void
   onClose: () => void
 }
 
@@ -46,10 +48,16 @@ function procurarConflito(campos: Campos, partidas: Partida[], times: Time[]): s
   return null
 }
 
-function AgendarPartidaModal({ campeonatoId, partidas, onAgendada, onClose }: AgendarPartidaModalProps) {
+function AgendarPartidaModal({ campeonatoId, partidas, partida, onSalva, onClose }: AgendarPartidaModalProps) {
   const [times, setTimes] = useState<Time[]>([])
   const [status, setStatus] = useState('loading')
-  const [campos, setCampos] = useState<Campos>({ data: '', hora: '', local: '', mandante: '', visitante: '' })
+  const [campos, setCampos] = useState<Campos>({
+    data: partida?.data_hora.slice(0, 10) ?? '',
+    hora: partida?.data_hora.slice(11, 16) ?? '',
+    local: partida?.local ?? '',
+    mandante: partida ? String(partida.time_mandante_id) : '',
+    visitante: partida ? String(partida.time_visitante_id) : '',
+  })
   const [faltando, setFaltando] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -71,7 +79,9 @@ function AgendarPartidaModal({ campeonatoId, partidas, onAgendada, onClose }: Ag
     setSubmitError(null)
   }
 
-  const conflito = procurarConflito(campos, partidas, times)
+  // na remarcação a própria partida não conta como conflito
+  const outras = partidas.filter((p) => p.id !== partida?.id)
+  const conflito = procurarConflito(campos, outras, times)
   const locais = [...new Set(partidas.map((partida) => partida.local))]
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -85,14 +95,15 @@ function AgendarPartidaModal({ campeonatoId, partidas, onAgendada, onClose }: Ag
     if (conflito) return
 
     setSaving(true)
+    const dados = {
+      data_hora: `${data}T${hora}:00`,
+      local: local.trim(),
+      time_mandante_id: Number(mandante),
+      time_visitante_id: Number(visitante),
+    }
     try {
-      const partida = await agendarPartida(campeonatoId, {
-        data_hora: `${data}T${hora}:00`,
-        local: local.trim(),
-        time_mandante_id: Number(mandante),
-        time_visitante_id: Number(visitante),
-      })
-      onAgendada(partida)
+      const salva = partida ? await editarPartida(partida.id, dados) : await agendarPartida(campeonatoId, dados)
+      onSalva(salva)
     } catch (err) {
       setSubmitError((err as Error).message)
       setSaving(false)
@@ -102,7 +113,7 @@ function AgendarPartidaModal({ campeonatoId, partidas, onAgendada, onClose }: Ag
   const erroCampo = (valor: string) => (faltando && !valor.trim() ? 'Obrigatório.' : null)
 
   return (
-    <Modal title="Agendar partida" onClose={onClose} busy={saving}>
+    <Modal title={partida ? 'Remarcar partida' : 'Agendar partida'} onClose={onClose} busy={saving}>
       {status === 'loading' && <SkeletonLista linhas={3} />}
 
       {status === 'error' && <FormError>{submitError}</FormError>}
@@ -196,10 +207,10 @@ function AgendarPartidaModal({ campeonatoId, partidas, onAgendada, onClose }: Ag
               type="submit"
               variant="primary"
               loading={saving}
-              loadingText="Agendando..."
+              loadingText="Salvando..."
               disabled={conflito !== null}
             >
-              Agendar partida
+              {partida ? 'Salvar' : 'Agendar partida'}
             </Button>
           </ModalActions>
         </form>

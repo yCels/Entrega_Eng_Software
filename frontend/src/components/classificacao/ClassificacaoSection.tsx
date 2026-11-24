@@ -6,13 +6,15 @@ import styles from './ClassificacaoSection.module.css'
 
 type ClassificacaoSectionProps = {
   campeonatoId: number
+  // muda quando uma partida é finalizada ou reaberta, pra tabela recarregar
+  versao: number
 }
 
 function formatarSaldo(saldo: number) {
   return saldo > 0 ? `+${saldo}` : String(saldo)
 }
 
-function ClassificacaoSection({ campeonatoId }: ClassificacaoSectionProps) {
+function ClassificacaoSection({ campeonatoId, versao }: ClassificacaoSectionProps) {
   const [linhas, setLinhas] = useState<LinhaClassificacao[]>([])
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
@@ -28,7 +30,7 @@ function ClassificacaoSection({ campeonatoId }: ClassificacaoSectionProps) {
         setLoadError(err.message)
         setStatus('error')
       })
-  }, [campeonatoId, reloadKey])
+  }, [campeonatoId, reloadKey, versao])
 
   function handleRetry() {
     setStatus('loading')

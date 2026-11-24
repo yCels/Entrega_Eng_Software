@@ -40,3 +40,19 @@ export async function agendarPartida(campeonatoId: number, dados: PartidaCreate)
 export async function gerarCalendario(campeonatoId: number, dados: CalendarioCreate): Promise<Partida[]> {
   return (await request(`/campeonatos/${campeonatoId}/calendario`, 'POST', dados)) as Partida[]
 }
+
+export async function editarPartida(partidaId: number, dados: PartidaCreate): Promise<Partida> {
+  return (await request(`/partidas/${partidaId}`, 'PUT', dados)) as Partida
+}
+
+export async function excluirPartida(partidaId: number): Promise<void> {
+  await request(`/partidas/${partidaId}`, 'DELETE')
+}
+
+export async function finalizarPartida(partidaId: number): Promise<Partida> {
+  return (await request(`/partidas/${partidaId}/finalizar`, 'PATCH')) as Partida
+}
+
+export async function reabrirPartida(partidaId: number): Promise<Partida> {
+  return (await request(`/partidas/${partidaId}/reabrir`, 'PATCH')) as Partida
+}
