@@ -33,7 +33,11 @@ Backend:
 - Campeonato encerrado não aceita mais mudanças em partidas e eventos
 - Testes automatizados com pytest rodando no GitHub Actions a cada PR
 
-Pendente: telas de jogadores, partidas, eventos e classificação.
+Frontend:
+
+- Súmula da partida: lançar gols e cartões por time, jogador e minuto, com placar automático e exclusão de evento
+
+Pendente: tela de classificação.
 
 ---
 
@@ -84,8 +88,8 @@ Pendente: telas de jogadores, partidas, eventos e classificação.
 
 | Rank | User Story | Prioridade | Status |
 | --- | --- | --- | --- |
-| 19 | Como organizador, quero registrar os eventos de uma partida (gols e cartões) vinculados a um jogador, para que o histórico da partida fique completo. | Alta | 🟡 |
-| 20 | Como organizador, quero que o placar da partida seja calculado automaticamente a partir dos eventos de gol registrados, para que eu não precise digitar o resultado manualmente. | Alta | 🟡 |
+| 19 | Como organizador, quero registrar os eventos de uma partida (gols e cartões) vinculados a um jogador, para que o histórico da partida fique completo. | Alta | ✅ |
+| 20 | Como organizador, quero que o placar da partida seja calculado automaticamente a partir dos eventos de gol registrados, para que eu não precise digitar o resultado manualmente. | Alta | ✅ |
 
 ## Cálculo da Classificação
 
@@ -109,7 +113,7 @@ Pendente: telas de jogadores, partidas, eventos e classificação.
 | 26 | Como organizador, quero uma tela de listagem e criação de campeonatos, para que eu gerencie meus campeonatos visualmente. | Alta | ✅ |
 | 27 | Como organizador, quero telas para gerenciar times e jogadores, para que eu não precise mexer diretamente na API. | Alta | ✅ |
 | 28 | Como organizador, quero uma tela de agendamento de partidas que me avise claramente quando houver conflito de agenda, para que eu entenda o motivo do erro. | Alta | ⬜ |
-| 29 | Como organizador, quero uma tela para lançar os eventos de uma partida, para que eu registre gols e cartões de forma simples. | Alta | ⬜ |
+| 29 | Como organizador, quero uma tela para lançar os eventos de uma partida, para que eu registre gols e cartões de forma simples. | Alta | ✅ |
 | 30 | Como organizador, quero uma tela de classificação sempre atualizada, para que eu acompanhe o campeonato visualmente. | Alta | ⬜ |
 
 ## Integração entre Frontend e Backend

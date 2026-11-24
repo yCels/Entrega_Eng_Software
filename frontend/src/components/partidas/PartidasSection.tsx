@@ -15,6 +15,7 @@ import { SkeletonLista } from '../ui/Skeleton'
 import { useToast } from '../ui/useToast'
 import AgendarPartidaModal from './AgendarPartidaModal'
 import GerarCalendarioModal from './GerarCalendarioModal'
+import SumulaModal from './SumulaModal'
 import styles from './PartidasSection.module.css'
 
 type PartidasSectionProps = {
@@ -64,6 +65,7 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
   const [agendando, setAgendando] = useState(false)
   const [gerando, setGerando] = useState(false)
   const [remarcando, setRemarcando] = useState<Partida | null>(null)
+  const [sumula, setSumula] = useState<Partida | null>(null)
   const [ocupadaId, setOcupadaId] = useState<number | null>(null)
   const [toDelete, setToDelete] = useState<Partida | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -93,6 +95,15 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
 
   function substituir(atualizada: Partida) {
     setPartidas((atual) => ordenar(atual.map((p) => (p.id === atualizada.id ? atualizada : p))))
+  }
+
+  // a súmula só muda partida não finalizada, então a classificação não precisa recarregar
+  function handlePlacarChange(partidaId: number, golsMandante: number, golsVisitante: number) {
+    setPartidas((atual) =>
+      atual.map((p) =>
+        p.id === partidaId ? { ...p, gols_mandante: golsMandante, gols_visitante: golsVisitante } : p,
+      ),
+    )
   }
 
   function handleAgendada(nova: Partida) {
@@ -151,12 +162,15 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
     }
   }
 
-  // finalizada só pode ser reaberta; o back não deixa finalizar antes do horário do jogo
+  // finalizada só pode ser reaberta; o back não deixa finalizar antes do horário do jogo.
+  // a súmula abre sempre: em partida finalizada ou campeonato encerrado é só consulta
   function acoesDa(partida: Partida) {
+    const verSumula = { label: 'Súmula', onSelect: () => setSumula(partida) }
+    if (encerrado) return [verSumula]
     if (partida.finalizada) {
-      return [{ label: 'Reabrir', onSelect: () => alternarFinalizada(partida) }]
+      return [verSumula, { label: 'Reabrir', onSelect: () => alternarFinalizada(partida) }]
     }
-    const acoes = [{ label: 'Remarcar', onSelect: () => setRemarcando(partida) }]
+    const acoes = [verSumula, { label: 'Remarcar', onSelect: () => setRemarcando(partida) }]
     if (new Date(partida.data_hora) <= new Date()) {
       acoes.push({ label: 'Finalizar', onSelect: () => alternarFinalizada(partida) })
     }
@@ -268,13 +282,11 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
                   {partida.finalizada ? 'Finalizada' : 'Agendada'}
                 </span>
 
-                {!encerrado && (
-                  <ActionMenu
-                    label={`Ações de ${partida.time_mandante_nome} x ${partida.time_visitante_nome}`}
-                    disabled={ocupadaId === partida.id}
-                    items={acoesDa(partida)}
-                  />
-                )}
+                <ActionMenu
+                  label={`Ações de ${partida.time_mandante_nome} x ${partida.time_visitante_nome}`}
+                  disabled={ocupadaId === partida.id}
+                  items={acoesDa(partida)}
+                />
               </li>
             ))}
           </ul>
@@ -297,6 +309,15 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
           partida={remarcando}
           onSalva={handleRemarcada}
           onClose={() => setRemarcando(null)}
+        />
+      )}
+
+      {sumula && (
+        <SumulaModal
+          partida={sumula}
+          somenteLeitura={encerrado || sumula.finalizada}
+          onPlacarChange={handlePlacarChange}
+          onClose={() => setSumula(null)}
         />
       )}
 
