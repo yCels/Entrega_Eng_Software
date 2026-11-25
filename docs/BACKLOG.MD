@@ -143,5 +143,5 @@ Frontend:
 | 40 | Como organizador, quero finalizar e reabrir uma partida, para que só os jogos encerrados contem na classificação. | Alta | ✅ |
 | 41 | Como organizador, quero que um campeonato encerrado não aceite mais mudanças em times, jogadores, partidas e eventos, para que o resultado final fique preservado. | Média | ✅ |
 | 42 | Como equipe de desenvolvimento, quero testes automatizados rodando a cada Pull Request, para que uma mudança não quebre o que já funcionava. | Média | ✅ |
-| 43 | Como equipe de desenvolvimento, quero o DER e o diagrama de arquitetura atualizados no repositório, para que a estrutura do sistema fique documentada. | Alta | ⬜ |
-| 44 | Como equipe de desenvolvimento, quero subir o sistema completo com Docker, para que qualquer pessoa consiga rodar o projeto com um comando. | Média | ⬜ |
+| 43 | Como equipe de desenvolvimento, quero o DER e o diagrama de arquitetura atualizados no repositório, para que a estrutura do sistema fique documentada. | Alta | ✅ |
+| 44 | Como equipe de desenvolvimento, quero subir o sistema completo com Docker, para que qualquer pessoa consiga rodar o projeto com um comando. | Média | ✅ |
