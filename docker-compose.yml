@@ -1,0 +1,48 @@
+# Sobe o sistema inteiro: docker compose up --build
+# Só o banco (para rodar back e front fora do Docker): docker compose up db
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: campeonatos_db
+    ports:
+      # só na máquina local; DB_PORT troca a porta se já houver um Postgres na 5432
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      # a partir do Postgres 18 o volume vai em /var/lib/postgresql
+      - dados_postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d campeonatos_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      # dentro da rede do compose o banco é encontrado pelo nome do serviço
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/campeonatos_db
+      SECRET_KEY: ${SECRET_KEY:-chave-secreta-jwt-trocar-em-producao}
+    ports:
+      - "8000:8000"
+    depends_on:
+      # a API cria as tabelas ao subir, então espera o banco aceitar conexões
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # é o navegador que chama a API, por isso localhost e não o nome do serviço
+        VITE_API_URL: http://localhost:8000/api
+    ports:
+      # mesma porta do npm run dev: é a origem liberada no CORS do backend
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  dados_postgres:

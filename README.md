@@ -78,7 +78,7 @@ Em toda a interface há skeletons durante o carregamento e toasts de confirmaç�
 | Tabela de classificação | ✅ | `components/classificacao/ClassificacaoSection.tsx` |
 | Súmula interativa (gols e cartões) | ✅ | `components/partidas/SumulaModal.tsx` |
 | Geração do calendário com o Builder Pattern | ✅ | `components/partidas/GerarCalendarioModal.tsx` · `services/calendario_builder.py` |
-| DER e diagrama de arquitetura atualizados | ✅ | [Modelagem de dados](#modelagem-de-dados) · [Arquitetura](#arquitetura) |
+| DER e diagrama de arquitetura atualizados | ✅ | [docs/DER.md](docs/DER.md) · [docs/ARQUITETURA.md](docs/ARQUITETURA.md) |
 
 ## Entregáveis
 
@@ -87,8 +87,9 @@ Em toda a interface há skeletons durante o carregamento e toasts de confirmaç�
 | Backend em Python (API REST) | ✅ | [`backend/`](backend/) · rotas em [backend/README.md](backend/README.md#principais-rotas) |
 | Frontend em React + TypeScript | ✅ | [`frontend/`](frontend/) |
 | Banco relacional PostgreSQL | ✅ | [Modelagem de dados](#modelagem-de-dados) |
-| Modelagem de dados (DER) | ✅ | [Modelagem de dados](#modelagem-de-dados) |
-| Desenho de arquitetura | ✅ | [Arquitetura](#arquitetura) |
+| Modelagem de dados (DER) | ✅ | [docs/DER.md](docs/DER.md) |
+| Desenho de arquitetura | ✅ | [docs/ARQUITETURA.md](docs/ARQUITETURA.md) |
+| Docker | ✅ PostgreSQL, backend e frontend | [Como rodar](#como-rodar) · `docker-compose.yml` |
 | Design Patterns | ✅ Builder, Service Layer e Dependency Injection | [Design Patterns](#design-patterns) |
 | Testes automatizados e CI | ✅ 119 testes no GitHub Actions | [Testes](#testes) |
 | Repositório Git (branches, PRs, Conventional Commits) | ✅ | [Organização do trabalho](#organização-do-trabalho) |
@@ -103,11 +104,30 @@ Em toda a interface há skeletons durante o carregamento e toasts de confirmaç�
 | Banco de dados | PostgreSQL |
 | Autenticação | JWT (python-jose) em cookie HttpOnly, senhas com bcrypt |
 | Testes e CI | pytest e GitHub Actions |
+| Infraestrutura | Docker e Docker Compose (nginx servindo o frontend) |
 | Metodologia | Kanban (Jira) |
 
 ## Arquitetura
 
-<!-- diagrama de arquitetura -->
+```mermaid
+flowchart LR
+    usuario(["Organizador"])
+
+    subgraph navegador["Navegador"]
+        spa["Frontend<br/>React + TypeScript (Vite)"]
+    end
+
+    subgraph servidor["Servidor"]
+        api["API REST<br/>FastAPI + Pydantic"]
+        db[("PostgreSQL<br/>campeonatos_db")]
+    end
+
+    usuario --> spa
+    spa -- "HTTP + JSON<br/>cookie HttpOnly com o JWT" --> api
+    api -- "SQLAlchemy (ORM)" --> db
+```
+
+A arquitetura completa, com as camadas do backend, a organização do frontend, o caminho de uma requisição e a implantação com Docker, está em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 - **Frontend:** uma SPA em React. As telas ficam em `pages/`, os pedaços reutilizáveis em `components/` e todas as chamadas HTTP em `api/`, que envia o cookie de login em toda requisição (`credentials: 'include'`).
 - **Backend:** organizado em camadas. Os `routers` só recebem a requisição e chamam os `services`; os `services` concentram as regras de negócio; os `models` mapeiam as tabelas; os `schemas` validam a entrada e a saída.
@@ -145,7 +165,7 @@ O FastAPI injeta as dependências de cada rota com `Depends()`: a sessão do ban
 
 ## Modelagem de dados
 
-<!-- DER -->
+O DER completo, com o diagrama, as colunas, os relacionamentos e as restrições, está em [docs/DER.md](docs/DER.md).
 
 Tabelas: `usuarios`, `campeonatos`, `times`, `jogadores`, `partidas` e `eventos_partida`. Cada organizador tem seus campeonatos; cada campeonato tem times e partidas; cada time tem jogadores; cada partida tem um time mandante, um visitante e os eventos (gols e cartões) lançados na súmula.
 
@@ -160,7 +180,25 @@ O placar não é uma coluna: é calculado pelos eventos do tipo gol, e a classif
 
 ## Como rodar
 
-<!-- Docker -->
+### Com Docker (recomendado)
+
+Com o Docker Desktop aberto, na raiz do repositório:
+
+```bash
+docker compose up --build
+```
+
+Sobem três containers: PostgreSQL, backend e frontend. Acesse `http://localhost:5173`; a documentação da API fica em `http://localhost:8000/docs`. As tabelas são criadas sozinhas e os dados ficam no volume `dados_postgres`, então sobrevivem a um `docker compose down` (use `docker compose down -v` para apagar o banco).
+
+| Variável (opcional) | Padrão | Uso |
+| --- | --- | --- |
+| `POSTGRES_PASSWORD` | `postgres` | Senha do banco |
+| `SECRET_KEY` | `chave-secreta-jwt-trocar-em-producao` | Assinatura do JWT |
+| `DB_PORT` | `5432` | Porta do banco na máquina, se a 5432 já estiver em uso |
+
+As portas 5173 e 8000 precisam estar livres: desligue outros projetos que usem essas portas antes de subir.
+
+### Sem Docker
 
 O backend e o frontend rodam separados, cada um em um terminal. Instruções completas em [backend/README.md](backend/README.md) e [frontend/README.md](frontend/README.md).
 
@@ -180,7 +218,7 @@ npm install
 npm run dev
 ```
 
-O backend precisa de um banco `campeonatos_db` no PostgreSQL. As tabelas são criadas automaticamente na primeira execução. Depois é só criar uma conta em `/cadastro`.
+O backend precisa de um banco `campeonatos_db` no PostgreSQL; para não instalar o PostgreSQL, dá para subir só o banco pelo Docker com `docker compose up db`. As tabelas são criadas automaticamente na primeira execução. Depois é só criar uma conta em `/cadastro`.
 
 ## Testes
 
@@ -214,8 +252,9 @@ O GitHub Actions ([`testes.yml`](.github/workflows/testes.yml)) roda todos os te
 │       ├── components/ componentes reutilizáveis e seções das telas
 │       ├── layouts/    estrutura das telas
 │       └── pages/      telas
-├── docs/               backlog do projeto
-└── .github/            CI e template de Pull Request
+├── docs/               backlog, DER e arquitetura
+├── .github/            CI e template de Pull Request
+└── docker-compose.yml  sobe banco, backend e frontend
 ```
 
 ## Organização do trabalho

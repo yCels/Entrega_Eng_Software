@@ -11,7 +11,7 @@ API REST do sistema de gerenciamento de campeonatos amadores de futebol.
 
 ## Como rodar
 
-1. Crie o banco `campeonatos_db` no PostgreSQL.
+1. Crie o banco `campeonatos_db` no PostgreSQL. Sem PostgreSQL instalado, suba só o banco pelo Docker na raiz do repositório com `docker compose up db` (já cria o `campeonatos_db` com usuário e senha `postgres`).
 2. Se a senha do usuário `postgres` não for `postgres`, crie um arquivo `.env` nesta pasta:
 
 ```
