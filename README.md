@@ -64,8 +64,14 @@ Com os dois rodando, acesse `http://localhost:5173`. A documentação da API fic
 ```
 backend/    API em FastAPI (models, schemas, services e routers)
 frontend/   Interface em React
-docs/       Backlog do projeto
+docs/       Backlog, DER e arquitetura
 ```
+
+## Documentação
+
+- [Arquitetura](docs/ARQUITETURA.md): visão geral, camadas do backend, frontend e o caminho de uma requisição
+- [DER](docs/DER.md): tabelas, relacionamentos e restrições do banco
+- [Backlog](docs/BACKLOG.MD): user stories e situação de cada uma
 
 ## Organização do trabalho
 
