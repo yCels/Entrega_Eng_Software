@@ -16,10 +16,32 @@ Projeto da disciplina de **Laboratório de Engenharia de Software** — FATEC S�
 
 ## Como rodar
 
+### Com Docker (recomendado)
+
+Com o Docker Desktop aberto, na raiz do repositório:
+
+```bash
+docker compose up --build
+```
+
+Sobem três containers: PostgreSQL, backend e frontend. Acesse `http://localhost:5173`; a documentação da API fica em `http://localhost:8000/docs`. As tabelas são criadas sozinhas e os dados ficam no volume `dados_postgres`, então sobrevivem a um `docker compose down` (use `docker compose down -v` para apagar o banco).
+
+| Variável (opcional) | Padrão | Uso |
+| --- | --- | --- |
+| `POSTGRES_PASSWORD` | `postgres` | Senha do banco |
+| `SECRET_KEY` | `chave-secreta-jwt-trocar-em-producao` | Assinatura do JWT |
+| `DB_PORT` | `5432` | Porta do banco na máquina, se a 5432 já estiver em uso |
+
+As portas 5173 e 8000 precisam estar livres: desligue outros projetos que usem essas portas antes de subir.
+
+### Sem Docker
+
 O backend e o frontend rodam separados. Instruções completas em:
 
 - [backend/README.md](backend/README.md)
 - [frontend/README.md](frontend/README.md)
+
+Para não instalar o PostgreSQL, dá para subir só o banco pelo Docker com `docker compose up db`.
 
 Com os dois rodando, acesse `http://localhost:5173`. A documentação da API fica em `http://localhost:8000/docs`.
 
