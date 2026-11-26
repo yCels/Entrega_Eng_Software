@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 from app.core.transacao import salvar
 from fastapi import HTTPException
@@ -42,6 +44,9 @@ def registrar(db: Session, partida_id: int, dados: EventoPartidaCreate, user_id:
     """
     partida = _verificar_partida(db, partida_id, user_id)
     _verificar_partida_aberta(partida)
+    # mesma regra do finalizar: não existe gol num jogo que ainda não aconteceu
+    if partida.data_hora > datetime.now():
+        raise HTTPException(status_code=400, detail="A partida ainda não começou")
 
     # valida que o time participa desta partida
     if dados.time_id not in (partida.time_mandante_id, partida.time_visitante_id):

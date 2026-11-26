@@ -9,7 +9,8 @@ class EventoPartidaCreate(BaseModel):
     time_id: int
     # o Pydantic recusa (422) qualquer valor fora do enum e o Swagger mostra as opções
     tipo: TipoEvento
-    minuto: Optional[int] = Field(default=None, ge=0)
+    # 120 minutos de jogo com prorrogação, mais os acréscimos
+    minuto: Optional[int] = Field(default=None, ge=0, le=150)
 
 
 class EventoPartidaResponse(BaseModel):

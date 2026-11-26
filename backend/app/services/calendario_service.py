@@ -27,6 +27,13 @@ def gerar(db: Session, campeonato_id: int, dados: CalendarioCreate, user_id: int
             detail="O campeonato já tem partidas agendadas. Exclua-as antes de gerar o calendário.",
         )
 
+    data_inicio = dados.data_inicio or campeonato.data_inicio
+    if data_inicio < campeonato.data_inicio:
+        raise HTTPException(
+            status_code=400,
+            detail=f"A primeira rodada não pode ser antes do início do campeonato ({campeonato.data_inicio:%d/%m/%Y})",
+        )
+
     times = db.query(Time).filter(Time.campeonato_id == campeonato_id).order_by(Time.id).all()
 
     try:
@@ -34,7 +41,7 @@ def gerar(db: Session, campeonato_id: int, dados: CalendarioCreate, user_id: int
             CalendarioBuilder()
             .set_times([t.id for t in times])
             .set_local(dados.local)
-            .set_data_inicio(dados.data_inicio or campeonato.data_inicio)
+            .set_data_inicio(data_inicio)
             .set_horario(dados.horario)
             .set_intervalo_dias(dados.intervalo_dias)
             .set_duracao_jogo(dados.duracao_jogo_minutos)
