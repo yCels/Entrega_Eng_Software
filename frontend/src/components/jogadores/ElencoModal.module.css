@@ -114,6 +114,13 @@
   }
 }
 
+.aviso {
+  padding-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
 .state {
   display: flex;
   flex-direction: column;

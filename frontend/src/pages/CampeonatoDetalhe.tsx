@@ -109,7 +109,7 @@ function CampeonatoDetalhe() {
             </div>
           </dl>
 
-          <TimesSection campeonatoId={campeonato.id} onCountChange={setTotalTimes} />
+          <TimesSection campeonatoId={campeonato.id} encerrado={campeonato.encerrado} onCountChange={setTotalTimes} />
           <PartidasSection
             campeonatoId={campeonato.id}
             encerrado={campeonato.encerrado}

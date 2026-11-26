@@ -13,11 +13,13 @@ import styles from './TimesSection.module.css'
 
 type TimesSectionProps = {
   campeonatoId: number
+  // campeonato encerrado: os times e o elenco ficam só para consulta
+  encerrado: boolean
   // a página usa pra mostrar a contagem na faixa de cima
   onCountChange: (count: number) => void
 }
 
-function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
+function TimesSection({ campeonatoId, encerrado, onCountChange }: TimesSectionProps) {
   const [times, setTimes] = useState<Time[]>([])
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
@@ -107,6 +109,24 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
     }
   }
 
+  // encerrado só deixa ver o elenco; editar e excluir o back recusa
+  function acoesDo(time: Time) {
+    const verElenco = { label: 'Elenco', onSelect: () => setElenco(time) }
+    if (encerrado) return [verElenco]
+    return [
+      verElenco,
+      { label: 'Editar', onSelect: () => setToEdit(time) },
+      {
+        label: 'Excluir',
+        danger: true,
+        onSelect: () => {
+          setDeleteError(null)
+          setToDelete(time)
+        },
+      },
+    ]
+  }
+
   return (
     // id usado pelo link "Times" da barra lateral (/campeonatos/:id#times)
     <section id="times" className={styles.panel}>
@@ -117,7 +137,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
         </h2>
       </div>
 
-      {status === 'ready' && (
+      {status === 'ready' && !encerrado && (
         <form className={styles.addForm} onSubmit={handleAdd} noValidate>
           <Input
             ref={inputRef}
@@ -135,6 +155,10 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
             Adicionar time
           </Button>
         </form>
+      )}
+
+      {status === 'ready' && encerrado && (
+        <p className={styles.aviso}>Campeonato encerrado. Os times ficam só para consulta.</p>
       )}
 
       {status === 'loading' && <SkeletonLista linhas={3} />}
@@ -162,25 +186,14 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
               <span className={styles.name}>{time.nome}</span>
               <ActionMenu
                 label={`Ações de ${time.nome}`}
-                items={[
-                  { label: 'Elenco', onSelect: () => setElenco(time) },
-                  { label: 'Editar', onSelect: () => setToEdit(time) },
-                  {
-                    label: 'Excluir',
-                    danger: true,
-                    onSelect: () => {
-                      setDeleteError(null)
-                      setToDelete(time)
-                    },
-                  },
-                ]}
+                items={acoesDo(time)}
               />
             </li>
           ))}
         </ul>
       )}
 
-      {elenco && <ElencoModal time={elenco} onClose={() => setElenco(null)} />}
+      {elenco && <ElencoModal time={elenco} somenteLeitura={encerrado} onClose={() => setElenco(null)} />}
 
       {toEdit && (
         <TimeEditModal nomeAtual={toEdit.nome} onSubmit={handleEdit} onClose={() => setToEdit(null)} />
