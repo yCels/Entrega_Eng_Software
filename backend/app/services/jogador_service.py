@@ -29,10 +29,22 @@ def _verificar_nao_encerrado(time: Time):
         raise HTTPException(status_code=400, detail="O campeonato está encerrado")
 
 
+def _verificar_camisa_unica(db: Session, time_id: int, numero: int | None, ignorar_id: int | None = None):
+    """Dois jogadores do mesmo time não podem usar o mesmo número de camisa."""
+    if numero is None:
+        return
+    consulta = db.query(Jogador).filter(Jogador.time_id == time_id, Jogador.numero_camisa == numero)
+    if ignorar_id is not None:
+        consulta = consulta.filter(Jogador.id != ignorar_id)
+    if consulta.first():
+        raise HTTPException(status_code=400, detail=f"Já existe um jogador com a camisa {numero} neste time")
+
+
 def criar(db: Session, time_id: int, dados: JogadorCreate, user_id: int) -> Jogador:
     """Cadastra jogador no time."""
     time = _verificar_time(db, time_id, user_id)
     _verificar_nao_encerrado(time)
+    _verificar_camisa_unica(db, time_id, dados.numero_camisa)
     novo_jogador = Jogador(
         nome=dados.nome,
         numero_camisa=dados.numero_camisa,
@@ -74,6 +86,8 @@ def editar(db: Session, jogador_id: int, dados: JogadorUpdate, user_id: int) -> 
     alteracoes = dados.model_dump(exclude_unset=True)
     if "nome" in alteracoes and alteracoes["nome"] is None:
         raise HTTPException(status_code=400, detail="O nome do jogador não pode ficar vazio")
+    if "numero_camisa" in alteracoes:
+        _verificar_camisa_unica(db, jogador.time_id, alteracoes["numero_camisa"], ignorar_id=jogador.id)
     for campo, valor in alteracoes.items():
         setattr(jogador, campo, valor)
     salvar(db)
