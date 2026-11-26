@@ -37,6 +37,15 @@ def _verificar_nao_finalizada(partida: Partida):
         )
 
 
+def _verificar_data(campeonato: Campeonato, data_hora: datetime):
+    """A partida não pode acontecer antes do início do campeonato."""
+    if data_hora.date() < campeonato.data_inicio:
+        raise HTTPException(
+            status_code=400,
+            detail=f"A partida não pode ser antes do início do campeonato ({campeonato.data_inicio:%d/%m/%Y})",
+        )
+
+
 def _validar_times(db: Session, campeonato_id: int, dados: PartidaCreate):
     """Valida que os dois times existem, pertencem ao campeonato e são diferentes.
 
@@ -102,6 +111,7 @@ def agendar(db: Session, campeonato_id: int, dados: PartidaCreate, user_id: int)
     """Agenda uma partida com validação de conflitos."""
     campeonato = _verificar_campeonato(db, campeonato_id, user_id)
     _verificar_nao_encerrado(campeonato)
+    _verificar_data(campeonato, dados.data_hora)
     _validar_times(db, campeonato_id, dados)
     _validar_conflitos(db, dados)
 
@@ -166,6 +176,14 @@ def editar(db: Session, partida_id: int, dados: PartidaUpdate, user_id: int) -> 
             detail="Não é possível trocar os times de uma partida que já tem eventos registrados",
         )
 
+    # os eventos só podem ser lançados depois do horário do jogo
+    if partida.eventos and novos.data_hora > datetime.now():
+        raise HTTPException(
+            status_code=400,
+            detail="Uma partida com gols ou cartões registrados não pode ser remarcada para o futuro",
+        )
+
+    _verificar_data(partida.campeonato, novos.data_hora)
     _validar_times(db, partida.campeonato_id, novos)
     _validar_conflitos(db, novos, ignorar_partida_id=partida.id)
 

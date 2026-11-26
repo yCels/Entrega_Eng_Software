@@ -22,7 +22,8 @@ def c(db):
     usuario = Usuario(nome="Org", email="org@teste.com", senha_hash="x")
     db.add(usuario)
     db.commit()
-    campeonato = Campeonato(nome="Copa", data_inicio=date.today(), organizador_id=usuario.id)
+    # começou há um mês: a partida de ontem fica dentro do campeonato
+    campeonato = Campeonato(nome="Copa", data_inicio=date.today() - timedelta(days=30), organizador_id=usuario.id)
     db.add(campeonato)
     db.commit()
     times, jogadores = {}, {}
