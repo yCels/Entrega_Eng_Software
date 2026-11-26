@@ -49,7 +49,23 @@ Dentro do detalhe do campeonato:
 
 Em toda a interface há skeletons durante o carregamento e toasts de confirmação e erro.
 
-<!-- prints das telas -->
+### Telas
+
+**Campeonatos:** lista com busca, filtro por status e os totais do organizador
+
+![Lista de campeonatos](docs/img/campeonatos.png)
+
+**Detalhe do campeonato:** times, partidas por rodada e classificação
+
+![Detalhe do campeonato](docs/img/detalhe.png)
+
+| Aviso de conflito ao agendar | Geração do calendário (Builder) |
+| --- | --- |
+| ![Aviso de conflito de horário e local](docs/img/conflito.png) | ![Modal de gerar calendário](docs/img/calendario.png) |
+
+**Súmula:** gols e cartões lançados por jogador, com o placar calculado
+
+![Súmula da partida](docs/img/sumula.png)
 
 ## Requisitos
 
@@ -91,7 +107,7 @@ Em toda a interface há skeletons durante o carregamento e toasts de confirmaç�
 | Desenho de arquitetura | ✅ | [docs/ARQUITETURA.md](docs/ARQUITETURA.md) |
 | Docker | ✅ PostgreSQL, backend e frontend | [Como rodar](#como-rodar) · `docker-compose.yml` |
 | Design Patterns | ✅ Builder, Service Layer e Dependency Injection | [Design Patterns](#design-patterns) |
-| Testes automatizados e CI | ✅ 119 testes no GitHub Actions | [Testes](#testes) |
+| Testes automatizados e CI | ✅ 141 testes no GitHub Actions | [Testes](#testes) |
 | Repositório Git (branches, PRs, Conventional Commits) | ✅ | [Organização do trabalho](#organização-do-trabalho) |
 | Backlog | ✅ | [docs/BACKLOG.MD](docs/BACKLOG.MD) · [Jira](https://matheusdisabatino.atlassian.net/jira/software/projects/FUT/boards/2) |
 
@@ -227,9 +243,9 @@ cd backend
 pytest -v
 ```
 
-São 119 testes com pytest, usando um banco SQLite em memória (não precisam do PostgreSQL):
+São 141 testes com pytest, usando um banco SQLite em memória (não precisam do PostgreSQL):
 
-- **Services:** conflito de agenda, Builder do calendário, classificação, eventos e placar, partida finalizada, campeonato encerrado, regras de times e jogadores, rollback de transação
+- **Services:** conflito de agenda, Builder do calendário, classificação, eventos e placar, partida finalizada, campeonato encerrado, datas das partidas, regras de times e jogadores, validação de campos, rollback de transação
 - **API:** rotas pelo `TestClient`, login com cookie e isolamento entre organizadores
 
 O GitHub Actions ([`testes.yml`](.github/workflows/testes.yml)) roda todos os testes a cada push e Pull Request para a `dev` e a `main`.
@@ -252,7 +268,7 @@ O GitHub Actions ([`testes.yml`](.github/workflows/testes.yml)) roda todos os te
 │       ├── components/ componentes reutilizáveis e seções das telas
 │       ├── layouts/    estrutura das telas
 │       └── pages/      telas
-├── docs/               backlog, DER e arquitetura
+├── docs/               backlog, DER, arquitetura e prints das telas (img/)
 ├── .github/            CI e template de Pull Request
 └── docker-compose.yml  sobe banco, backend e frontend
 ```
