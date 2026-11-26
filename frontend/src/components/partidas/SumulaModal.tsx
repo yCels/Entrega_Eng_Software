@@ -48,7 +48,10 @@ function contarGols(eventos: Evento[], timeId: number) {
   return eventos.filter((e) => e.tipo === 'gol' && e.time_id === timeId).length
 }
 
-function SumulaModal({ partida, somenteLeitura, onPlacarChange, onClose }: SumulaModalProps) {
+function SumulaModal({ partida, somenteLeitura: bloqueadaPeloPai, onPlacarChange, onClose }: SumulaModalProps) {
+  // o back não aceita evento antes do horário do jogo, então a súmula só abre para consulta
+  const naoComecou = new Date(partida.data_hora) > new Date()
+  const somenteLeitura = bloqueadaPeloPai || naoComecou
   const [eventos, setEventos] = useState<Evento[]>([])
   const [jogadores, setJogadores] = useState<Jogador[]>([])
   const [status, setStatus] = useState('loading')
@@ -178,7 +181,9 @@ function SumulaModal({ partida, somenteLeitura, onPlacarChange, onClose }: Sumul
         <p className={styles.aviso}>
           {partida.finalizada
             ? 'Partida finalizada. Reabra a partida para alterar os eventos.'
-            : 'Campeonato encerrado. A súmula fica só para consulta.'}
+            : bloqueadaPeloPai
+              ? 'Campeonato encerrado. A súmula fica só para consulta.'
+              : 'A partida ainda não começou. Os eventos podem ser lançados a partir do horário do jogo.'}
         </p>
       )}
 

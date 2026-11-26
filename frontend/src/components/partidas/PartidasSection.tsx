@@ -165,7 +165,7 @@ function PartidasSection({ campeonatoId, encerrado, dataInicio, onCountChange, o
   }
 
   // finalizada só pode ser reaberta; o back não deixa finalizar antes do horário do jogo.
-  // a súmula abre sempre: em partida finalizada ou campeonato encerrado é só consulta
+  // a súmula abre sempre: em partida finalizada, que ainda não começou ou de campeonato encerrado é só consulta
   function acoesDa(partida: Partida) {
     const verSumula = { label: 'Súmula', onSelect: () => setSumula(partida) }
     if (encerrado) return [verSumula]
