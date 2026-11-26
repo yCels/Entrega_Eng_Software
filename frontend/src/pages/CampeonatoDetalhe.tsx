@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { obter, type Campeonato } from '../api/campeonatos'
+import ClassificacaoSection from '../components/classificacao/ClassificacaoSection'
+import PartidasSection from '../components/partidas/PartidasSection'
 import TimesSection from '../components/times/TimesSection'
 import { Button } from '../components/ui/Button'
 import { ArrowLeftIcon } from '../components/ui/Icons'
+import { Skeleton, SkeletonLista } from '../components/ui/Skeleton'
 import StatusIndicator from '../components/ui/StatusIndicator'
 import { formatDate } from '../utils/campeonatos'
 import styles from './CampeonatoDetalhe.module.css'
@@ -16,6 +19,16 @@ function CampeonatoDetalhe() {
   const [loadError, setLoadError] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
   const [totalTimes, setTotalTimes] = useState<number | null>(null)
+  const [totalPartidas, setTotalPartidas] = useState<number | null>(null)
+  const [versaoResultados, setVersaoResultados] = useState(0)
+  const location = useLocation()
+
+  // links da barra lateral (ex.: #times) levam até a seção depois que a página carrega;
+  // o key muda a cada clique, então clicar de novo no mesmo item também rola
+  useEffect(() => {
+    if (status !== 'ready' || !location.hash) return
+    document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [status, location.hash, location.key])
 
   useEffect(() => {
     obter(campeonatoId)
@@ -42,11 +55,13 @@ function CampeonatoDetalhe() {
       </Link>
 
       {status === 'loading' && (
-        <div className={styles.panel}>
-          <p className={styles.panelText} role="status">
-            Carregando...
-          </p>
-        </div>
+        <>
+          <Skeleton width={260} height={28} className={styles.title} />
+          <Skeleton height={84} />
+          <div className={styles.skeletonPanel}>
+            <SkeletonLista linhas={3} />
+          </div>
+        </>
       )}
 
       {status === 'error' && (
@@ -82,15 +97,27 @@ function CampeonatoDetalhe() {
             </div>
             <div className={styles.stat}>
               <dt>Times</dt>
-              <dd className="num">{totalTimes === null ? '--' : String(totalTimes).padStart(2, '0')}</dd>
+              <dd className="num">
+                {totalTimes === null ? <Skeleton width={28} height={20} /> : String(totalTimes).padStart(2, '0')}
+              </dd>
             </div>
             <div className={styles.stat}>
               <dt>Partidas</dt>
-              <dd className="num">{String(campeonato.total_partidas ?? 0).padStart(2, '0')}</dd>
+              <dd className="num">
+                {String(totalPartidas ?? campeonato.total_partidas).padStart(2, '0')}
+              </dd>
             </div>
           </dl>
 
-          <TimesSection campeonatoId={campeonato.id} onCountChange={setTotalTimes} />
+          <TimesSection campeonatoId={campeonato.id} encerrado={campeonato.encerrado} onCountChange={setTotalTimes} />
+          <PartidasSection
+            campeonatoId={campeonato.id}
+            encerrado={campeonato.encerrado}
+            dataInicio={campeonato.data_inicio}
+            onCountChange={setTotalPartidas}
+            onResultadoChange={() => setVersaoResultados((v) => v + 1)}
+          />
+          <ClassificacaoSection campeonatoId={campeonato.id} versao={versaoResultados} />
         </>
       )}
     </>

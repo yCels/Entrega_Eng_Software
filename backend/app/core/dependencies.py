@@ -1,5 +1,4 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Cookie, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from jose import JWTError
 
@@ -7,21 +6,22 @@ from app.database import get_db
 from app.core.security import decodificar_token
 from app.models.usuario import Usuario
 
-# Permite colar o token no Authorize do Swagger
-bearer_scheme = HTTPBearer()
-
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    access_token: str | None = Cookie(default=None),
     db: Session = Depends(get_db),
 ) -> Usuario:
-    """Extrai o usuário autenticado a partir do token JWT.
+    """Extrai o usuário autenticado a partir do token JWT do cookie.
 
     Injetado via Depends() nas rotas protegidas
     """
-    token = credentials.credentials
+    if access_token is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Não autenticado",
+        )
     try:
-        payload = decodificar_token(token)
+        payload = decodificar_token(access_token)
         sub = payload.get("sub")
         if sub is None:
             raise HTTPException(

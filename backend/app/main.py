@@ -2,9 +2,25 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from app.database import Base, engine
-import app.models 
+import app.models
 
+
+# O create_all só cria tabelas que não existem: ele não acrescenta colunas
+# novas em tabelas antigas. Sem Alembic, as colunas adicionadas depois da
+# criação do banco são ajustadas aqui (IF NOT EXISTS: pode rodar sempre).
+COLUNAS_NOVAS = [
+    "ALTER TABLE partidas ADD COLUMN IF NOT EXISTS finalizada BOOLEAN NOT NULL DEFAULT FALSE",
+]
+
+
+def _atualizar_colunas():
+    if engine.dialect.name != "postgresql":
+        return
+    with engine.begin() as conexao:
+        for comando in COLUNAS_NOVAS:
+            conexao.execute(text(comando))
 
 
 @asynccontextmanager
@@ -12,6 +28,7 @@ async def lifespan(app: FastAPI):
     """Evento de startup: cria as tabelas no banco (dev only)."""
     try:
         Base.metadata.create_all(bind=engine)
+        _atualizar_colunas()
         print("✅ Tabelas criadas/verificadas com sucesso.")
     except Exception as e:
         print(f"  Não foi possível conectar ao banco: {e}")

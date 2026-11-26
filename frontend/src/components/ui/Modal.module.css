@@ -17,6 +17,10 @@
   }
 }
 
+.wide {
+  max-width: 600px;
+}
+
 .panel {
   padding: 20px;
 }

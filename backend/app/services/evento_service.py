@@ -1,8 +1,11 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 from app.core.transacao import salvar
 from fastapi import HTTPException
 
 from app.models.evento_partida import EventoPartida, TipoEvento
+from app.models.jogador import Jogador
 from app.models.partida import Partida
 from app.models.campeonato import Campeonato
 from app.schemas.evento_partida import EventoPartidaCreate
@@ -22,22 +25,40 @@ def _verificar_partida(db: Session, partida_id: int, user_id: int) -> Partida:
     return partida
 
 
+def _verificar_partida_aberta(partida: Partida):
+    """Eventos só mudam com o campeonato em andamento e a partida não finalizada."""
+    if partida.campeonato.encerrado:
+        raise HTTPException(status_code=400, detail="O campeonato está encerrado")
+    # o placar de uma partida finalizada já conta na classificação
+    if partida.finalizada:
+        raise HTTPException(
+            status_code=400,
+            detail="A partida está finalizada. Reabra a partida para alterar os eventos.",
+        )
+
+
 def registrar(db: Session, partida_id: int, dados: EventoPartidaCreate, user_id: int) -> EventoPartida:
-    """Registra evento (gol/cartão) vinculado a jogador e time."""
+    """Registra evento (gol/cartão) vinculado a jogador e time.
+
+    O tipo já chega validado pelo schema (enum TipoEvento).
+    """
     partida = _verificar_partida(db, partida_id, user_id)
+    _verificar_partida_aberta(partida)
+    # mesma regra do finalizar: não existe gol num jogo que ainda não aconteceu
+    if partida.data_hora > datetime.now():
+        raise HTTPException(status_code=400, detail="A partida ainda não começou")
 
     # valida que o time participa desta partida
     if dados.time_id not in (partida.time_mandante_id, partida.time_visitante_id):
         raise HTTPException(status_code=400, detail="Este time não participa desta partida")
 
-    # valida o tipo de evento
-    try:
-        TipoEvento(dados.tipo)
-    except ValueError:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Tipo inválido. Use: {', '.join(e.value for e in TipoEvento)}",
-        )
+    # valida que o jogador existe e é do time informado
+    # (senão um gol do time A poderia ser lançado com um jogador do time B)
+    jogador = db.query(Jogador).filter(Jogador.id == dados.jogador_id).first()
+    if not jogador:
+        raise HTTPException(status_code=404, detail="Jogador não encontrado")
+    if jogador.time_id != dados.time_id:
+        raise HTTPException(status_code=400, detail="Este jogador não pertence ao time informado")
 
     novo_evento = EventoPartida(
         tipo=dados.tipo,
@@ -53,14 +74,25 @@ def registrar(db: Session, partida_id: int, dados: EventoPartidaCreate, user_id:
 
 
 def listar(db: Session, partida_id: int, user_id: int) -> list[EventoPartida]:
-    """Lista eventos da partida ordenados por minuto."""
+    """Lista eventos da partida ordenados por minuto (sem minuto vão para o fim)."""
     _verificar_partida(db, partida_id, user_id)
     return (
         db.query(EventoPartida)
         .filter(EventoPartida.partida_id == partida_id)
-        .order_by(EventoPartida.minuto)
+        .order_by(EventoPartida.minuto.is_(None), EventoPartida.minuto, EventoPartida.id)
         .all()
     )
+
+
+def excluir(db: Session, evento_id: int, user_id: int):
+    """Remove um evento lançado errado; o placar e a classificação se ajustam sozinhos."""
+    evento = db.query(EventoPartida).filter(EventoPartida.id == evento_id).first()
+    if not evento:
+        raise HTTPException(status_code=404, detail="Evento não encontrado")
+    partida = _verificar_partida(db, evento.partida_id, user_id)
+    _verificar_partida_aberta(partida)
+    db.delete(evento)
+    salvar(db)
 
 
 def calcular_placar(db: Session, partida_id: int, user_id: int) -> dict:

@@ -1,20 +1,25 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { criar, editar, excluir, listar, type Time } from '../../api/times'
+import ElencoModal from '../jogadores/ElencoModal'
 import ActionMenu from '../ui/ActionMenu'
 import { Button } from '../ui/Button'
 import { PlusIcon } from '../ui/Icons'
 import Input, { FormError } from '../ui/Input'
 import Modal, { ModalActions } from '../ui/Modal'
+import { SkeletonLista } from '../ui/Skeleton'
+import { useToast } from '../ui/useToast'
 import TimeEditModal from './TimeEditModal'
 import styles from './TimesSection.module.css'
 
 type TimesSectionProps = {
   campeonatoId: number
+  // campeonato encerrado: os times e o elenco ficam só para consulta
+  encerrado: boolean
   // a página usa pra mostrar a contagem na faixa de cima
   onCountChange: (count: number) => void
 }
 
-function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
+function TimesSection({ campeonatoId, encerrado, onCountChange }: TimesSectionProps) {
   const [times, setTimes] = useState<Time[]>([])
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
@@ -25,10 +30,12 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
   const [adding, setAdding] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const [elenco, setElenco] = useState<Time | null>(null)
   const [toEdit, setToEdit] = useState<Time | null>(null)
   const [toDelete, setToDelete] = useState<Time | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const mostrarToast = useToast()
 
   useEffect(() => {
     listar(campeonatoId)
@@ -67,6 +74,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
       const time = await criar(campeonatoId, novoNome.trim())
       setTimes((current) => [...current, time])
       setNovoNome('')
+      mostrarToast('success', 'Time adicionado.')
     } catch (err) {
       setAddError((err as Error).message)
     } finally {
@@ -80,6 +88,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
     const updated = await editar(toEdit.id, nome)
     setTimes((current) => current.map((time) => (time.id === updated.id ? updated : time)))
     setToEdit(null)
+    mostrarToast('success', 'Time atualizado.')
   }
 
   async function handleConfirmDelete() {
@@ -92,6 +101,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
       await excluir(toDelete.id)
       setTimes((current) => current.filter((time) => time.id !== toDelete.id))
       setToDelete(null)
+      mostrarToast('success', 'Time excluído.')
     } catch (err) {
       setDeleteError((err as Error).message)
     } finally {
@@ -99,8 +109,27 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
     }
   }
 
+  // encerrado só deixa ver o elenco; editar e excluir o back recusa
+  function acoesDo(time: Time) {
+    const verElenco = { label: 'Elenco', onSelect: () => setElenco(time) }
+    if (encerrado) return [verElenco]
+    return [
+      verElenco,
+      { label: 'Editar', onSelect: () => setToEdit(time) },
+      {
+        label: 'Excluir',
+        danger: true,
+        onSelect: () => {
+          setDeleteError(null)
+          setToDelete(time)
+        },
+      },
+    ]
+  }
+
   return (
-    <section className={styles.panel}>
+    // id usado pelo link "Times" da barra lateral (/campeonatos/:id#times)
+    <section id="times" className={styles.panel}>
       <div className={styles.header}>
         <h2 className={styles.title}>
           Times
@@ -108,7 +137,7 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
         </h2>
       </div>
 
-      {status === 'ready' && (
+      {status === 'ready' && !encerrado && (
         <form className={styles.addForm} onSubmit={handleAdd} noValidate>
           <Input
             ref={inputRef}
@@ -128,13 +157,11 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
         </form>
       )}
 
-      {status === 'loading' && (
-        <div className={styles.state}>
-          <p className={styles.stateText} role="status">
-            Carregando...
-          </p>
-        </div>
+      {status === 'ready' && encerrado && (
+        <p className={styles.aviso}>Campeonato encerrado. Os times ficam só para consulta.</p>
       )}
+
+      {status === 'loading' && <SkeletonLista linhas={3} />}
 
       {status === 'error' && (
         <div className={styles.state} role="alert">
@@ -159,22 +186,14 @@ function TimesSection({ campeonatoId, onCountChange }: TimesSectionProps) {
               <span className={styles.name}>{time.nome}</span>
               <ActionMenu
                 label={`Ações de ${time.nome}`}
-                items={[
-                  { label: 'Editar', onSelect: () => setToEdit(time) },
-                  {
-                    label: 'Excluir',
-                    danger: true,
-                    onSelect: () => {
-                      setDeleteError(null)
-                      setToDelete(time)
-                    },
-                  },
-                ]}
+                items={acoesDo(time)}
               />
             </li>
           ))}
         </ul>
       )}
+
+      {elenco && <ElencoModal time={elenco} somenteLeitura={encerrado} onClose={() => setElenco(null)} />}
 
       {toEdit && (
         <TimeEditModal nomeAtual={toEdit.nome} onSubmit={handleEdit} onClose={() => setToEdit(null)} />

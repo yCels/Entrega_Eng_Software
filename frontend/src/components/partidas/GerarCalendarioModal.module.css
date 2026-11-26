@@ -1,0 +1,48 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dica {
+  margin-top: -8px;
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+
+  & input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+  }
+}
+
+.resumo {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+.aviso {
+  font-size: 13px;
+  color: var(--text-muted);
+}

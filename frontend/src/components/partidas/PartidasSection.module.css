@@ -1,0 +1,175 @@
+.panel {
+  margin-top: 24px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.stateText {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.errorTitle {
+  font-size: 15px;
+  color: var(--danger);
+}
+
+.navegacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.dia {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.pagina {
+  font-weight: 500;
+  color: var(--text-subtle);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 130px 1fr 96px 32px;
+  align-items: center;
+  gap: 16px;
+  min-height: 60px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr auto auto;
+    gap: 6px 12px;
+  }
+}
+
+.quando {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.local {
+  font-size: 12px;
+  color: var(--text-subtle);
+  overflow-wrap: anywhere;
+}
+
+/* mandante e visitante com a mesma largura, pro placar ficar sempre no meio */
+.confronto {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+
+  @media (max-width: 720px) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+.mandante {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.visitante {
+  overflow-wrap: anywhere;
+}
+
+.placar {
+  min-width: 48px;
+  padding: 4px 8px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-subtle);
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+.finalizada.status {
+  color: var(--text-subtle);
+}
+
+.status {
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.row:has(.finalizada) .placar {
+  color: var(--text);
+}

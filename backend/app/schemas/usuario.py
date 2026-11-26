@@ -1,9 +1,12 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 class UsuarioCreate(BaseModel):
-    nome: str
-    email: EmailStr
-    senha: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    nome: str = Field(min_length=1, max_length=100)
+    email: EmailStr = Field(max_length=150)
+    # mínimo igual ao do front; o bcrypt só considera os primeiros 72 bytes
+    senha: str = Field(min_length=6, max_length=72)
 
 class UsuarioResponse(BaseModel):
     id : int
@@ -16,8 +19,3 @@ class UsuarioResponse(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     senha: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-  

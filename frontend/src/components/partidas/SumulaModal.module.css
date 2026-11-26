@@ -1,0 +1,171 @@
+/* mandante e visitante com a mesma largura, pro placar ficar no meio */
+.placar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.timeMandante,
+.timeVisitante {
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.timeMandante {
+  text-align: right;
+}
+
+.gols {
+  min-width: 64px;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.aviso {
+  padding: 12px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) 96px;
+  gap: 8px;
+  align-items: start;
+
+  & > * {
+    min-width: 0;
+  }
+
+  @media (max-width: 560px) {
+    grid-template-columns: minmax(0, 1fr) 96px;
+  }
+}
+
+.dica {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.list {
+  max-height: 320px;
+  margin: 0 -20px;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 12px 6px 20px;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.minuto {
+  flex-shrink: 0;
+  width: 36px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* bolinha pro gol, retângulo na cor do cartão */
+.marca {
+  flex-shrink: 0;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.gol {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.cartao_amarelo {
+  background: #eab308;
+}
+
+.cartao_vermelho {
+  background: var(--danger);
+}
+
+.info {
+  display: flex;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+.jogador {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.detalhe {
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.excluir {
+  flex-shrink: 0;
+  color: var(--danger);
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 24px 0 8px;
+  text-align: center;
+
+  & > button {
+    margin-top: 12px;
+  }
+}
+
+.stateText {
+  padding: 24px 0 8px;
+  color: var(--text-muted);
+  text-align: center;
+
+  .state & {
+    padding: 0;
+  }
+}
+
+.errorTitle {
+  font-weight: 600;
+  color: var(--danger);
+}

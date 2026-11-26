@@ -132,3 +132,19 @@ export function ArrowLeftIcon({ size }: IconProps) {
     </Icon>
   )
 }
+
+export function ChevronLeftIcon({ size }: IconProps) {
+  return (
+    <Icon size={size}>
+      <path d="m15 18-6-6 6-6" />
+    </Icon>
+  )
+}
+
+export function ChevronRightIcon({ size }: IconProps) {
+  return (
+    <Icon size={size}>
+      <path d="m9 18 6-6-6-6" />
+    </Icon>
+  )
+}

@@ -52,8 +52,8 @@ function CampeonatosTable({
         <tbody>
           {campeonatos.map((campeonato) => {
             const busy = busyIds.includes(campeonato.id)
-            const times = campeonato.total_times ?? 0
-            const partidas = campeonato.total_partidas ?? 0
+            const times = campeonato.total_times
+            const partidas = campeonato.total_partidas
             let rowClass = `${styles.row} ${campeonato.encerrado ? styles.closed : styles.open}`
             if (busy) rowClass += ` ${styles.busy}`
 

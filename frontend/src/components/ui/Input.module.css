@@ -65,7 +65,8 @@
     opacity: 0.6;
   }
 
-  &[type='date'] {
+  &[type='date'],
+  &[type='time'] {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     font-size: 13px;

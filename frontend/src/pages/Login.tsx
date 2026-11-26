@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { login, saveToken } from '../api/auth'
+import { login } from '../api/auth'
 import { Button } from '../components/ui/Button'
 import Input, { FormError } from '../components/ui/Input'
 import AuthLayout, { AuthCard } from '../layouts/AuthLayout'
@@ -40,8 +40,7 @@ function Login() {
     setLoading(true)
 
     try {
-      const { token } = await login({ email, password })
-      saveToken(token)
+      await login({ email, password })
       navigate('/campeonatos')
     } catch (err) {
       setError((err as Error).message)
