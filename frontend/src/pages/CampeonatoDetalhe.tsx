@@ -113,6 +113,7 @@ function CampeonatoDetalhe() {
           <PartidasSection
             campeonatoId={campeonato.id}
             encerrado={campeonato.encerrado}
+            dataInicio={campeonato.data_inicio}
             onCountChange={setTotalPartidas}
             onResultadoChange={() => setVersaoResultados((v) => v + 1)}
           />

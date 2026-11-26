@@ -21,6 +21,8 @@ import styles from './PartidasSection.module.css'
 type PartidasSectionProps = {
   campeonatoId: number
   encerrado: boolean
+  // AAAA-MM-DD: nenhuma partida pode ser marcada antes do início do campeonato
+  dataInicio: string
   // a página usa pra atualizar a contagem na faixa de cima
   onCountChange: (count: number) => void
   // chamado quando uma partida é finalizada ou reaberta, pra classificação recarregar
@@ -55,7 +57,7 @@ function ordenar(partidas: Partida[]) {
   return [...partidas].sort((a, b) => a.data_hora.localeCompare(b.data_hora) || a.id - b.id)
 }
 
-function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoChange }: PartidasSectionProps) {
+function PartidasSection({ campeonatoId, encerrado, dataInicio, onCountChange, onResultadoChange }: PartidasSectionProps) {
   const [partidas, setPartidas] = useState<Partida[]>([])
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
@@ -296,6 +298,7 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
       {agendando && (
         <AgendarPartidaModal
           campeonatoId={campeonatoId}
+          dataInicio={dataInicio}
           partidas={partidas}
           onSalva={handleAgendada}
           onClose={() => setAgendando(false)}
@@ -305,6 +308,7 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
       {remarcando && (
         <AgendarPartidaModal
           campeonatoId={campeonatoId}
+          dataInicio={dataInicio}
           partidas={partidas}
           partida={remarcando}
           onSalva={handleRemarcada}
@@ -324,6 +328,7 @@ function PartidasSection({ campeonatoId, encerrado, onCountChange, onResultadoCh
       {gerando && (
         <GerarCalendarioModal
           campeonatoId={campeonatoId}
+          dataInicio={dataInicio}
           onGerado={handleGerado}
           onClose={() => setGerando(false)}
         />
