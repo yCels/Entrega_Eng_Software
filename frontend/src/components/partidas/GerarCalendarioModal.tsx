@@ -5,10 +5,13 @@ import { Button } from '../ui/Button'
 import Input, { FormError } from '../ui/Input'
 import Modal, { ModalActions } from '../ui/Modal'
 import { SkeletonLista } from '../ui/Skeleton'
+import { formatDate } from '../../utils/campeonatos'
 import styles from './GerarCalendarioModal.module.css'
 
 type GerarCalendarioModalProps = {
   campeonatoId: number
+  // AAAA-MM-DD do início do campeonato, usado como data mínima
+  dataInicio: string
   onGerado: (partidas: Partida[]) => void
   onClose: () => void
 }
@@ -21,7 +24,7 @@ function resumir(totalTimes: number, idaEVolta: boolean) {
   return `${totalTimes} times → ${jogos * vezes} partidas em ${rodadas * vezes} rodadas`
 }
 
-function GerarCalendarioModal({ campeonatoId, onGerado, onClose }: GerarCalendarioModalProps) {
+function GerarCalendarioModal({ campeonatoId, dataInicio: inicioCampeonato, onGerado, onClose }: GerarCalendarioModalProps) {
   const [totalTimes, setTotalTimes] = useState<number | null>(null)
   const [local, setLocal] = useState('')
   const [dataInicio, setDataInicio] = useState('')
@@ -38,6 +41,8 @@ function GerarCalendarioModal({ campeonatoId, onGerado, onClose }: GerarCalendar
       .catch((err: Error) => setSubmitError(err.message))
   }, [campeonatoId])
 
+  const dataAntesDoInicio = dataInicio !== '' && dataInicio < inicioCampeonato
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -45,6 +50,9 @@ function GerarCalendarioModal({ campeonatoId, onGerado, onClose }: GerarCalendar
       setLocalError('Informe o local das partidas.')
       return
     }
+
+    // o min do campo não impede digitar a data, então confere aqui também
+    if (dataAntesDoInicio) return
 
     setLocalError(null)
     setSubmitError(null)
@@ -96,8 +104,10 @@ function GerarCalendarioModal({ campeonatoId, onGerado, onClose }: GerarCalendar
             <Input
               label="Primeira rodada"
               type="date"
+              min={inicioCampeonato}
               value={dataInicio}
               onChange={(event) => setDataInicio(event.target.value)}
+              error={dataAntesDoInicio ? `A partir de ${formatDate(inicioCampeonato)}.` : null}
               disabled={saving}
             />
             <Input

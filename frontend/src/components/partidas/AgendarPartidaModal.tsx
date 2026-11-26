@@ -6,10 +6,13 @@ import Input, { FormError } from '../ui/Input'
 import Modal, { ModalActions } from '../ui/Modal'
 import Select from '../ui/Select'
 import { SkeletonLista } from '../ui/Skeleton'
+import { formatDate } from '../../utils/campeonatos'
 import styles from './AgendarPartidaModal.module.css'
 
 type AgendarPartidaModalProps = {
   campeonatoId: number
+  // AAAA-MM-DD do início do campeonato, usado como data mínima
+  dataInicio: string
   partidas: Partida[]
   // com partida, o modal remarca ela em vez de agendar uma nova
   partida?: Partida
@@ -48,7 +51,7 @@ function procurarConflito(campos: Campos, partidas: Partida[], times: Time[]): s
   return null
 }
 
-function AgendarPartidaModal({ campeonatoId, partidas, partida, onSalva, onClose }: AgendarPartidaModalProps) {
+function AgendarPartidaModal({ campeonatoId, dataInicio, partidas, partida, onSalva, onClose }: AgendarPartidaModalProps) {
   const [times, setTimes] = useState<Time[]>([])
   const [status, setStatus] = useState('loading')
   const [campos, setCampos] = useState<Campos>({
@@ -82,6 +85,8 @@ function AgendarPartidaModal({ campeonatoId, partidas, partida, onSalva, onClose
   // na remarcação a própria partida não conta como conflito
   const outras = partidas.filter((p) => p.id !== partida?.id)
   const conflito = procurarConflito(campos, outras, times)
+  // o min do campo não impede digitar a data, então confere aqui também
+  const dataAntesDoInicio = campos.data !== '' && campos.data < dataInicio
   const locais = [...new Set(partidas.map((partida) => partida.local))]
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -92,7 +97,7 @@ function AgendarPartidaModal({ campeonatoId, partidas, partida, onSalva, onClose
       setFaltando(true)
       return
     }
-    if (conflito) return
+    if (conflito || dataAntesDoInicio) return
 
     setSaving(true)
     const dados = {
@@ -128,9 +133,12 @@ function AgendarPartidaModal({ campeonatoId, partidas, partida, onSalva, onClose
             <Input
               label="Data"
               type="date"
+              min={dataInicio}
               value={campos.data}
               onChange={(event) => alterar('data', event.target.value)}
-              error={erroCampo(campos.data)}
+              error={
+                dataAntesDoInicio ? `A partir de ${formatDate(dataInicio)}.` : erroCampo(campos.data)
+              }
               disabled={saving}
             />
             <Input
@@ -208,7 +216,7 @@ function AgendarPartidaModal({ campeonatoId, partidas, partida, onSalva, onClose
               variant="primary"
               loading={saving}
               loadingText="Salvando..."
-              disabled={conflito !== null}
+              disabled={conflito !== null || dataAntesDoInicio}
             >
               {partida ? 'Salvar' : 'Agendar partida'}
             </Button>

@@ -11,6 +11,8 @@ import styles from './ElencoModal.module.css'
 
 type ElencoModalProps = {
   time: Time
+  // campeonato encerrado: o elenco fica só para consulta
+  somenteLeitura?: boolean
   onClose: () => void
 }
 
@@ -28,7 +30,7 @@ function ordenar(jogadores: Jogador[]) {
   })
 }
 
-function ElencoModal({ time, onClose }: ElencoModalProps) {
+function ElencoModal({ time, somenteLeitura = false, onClose }: ElencoModalProps) {
   const [jogadores, setJogadores] = useState<Jogador[]>([])
   const [status, setStatus] = useState('loading')
   const [loadError, setLoadError] = useState('')
@@ -153,7 +155,11 @@ function ElencoModal({ time, onClose }: ElencoModalProps) {
 
   return (
     <Modal title={`Elenco · ${time.nome}`} onClose={onClose} busy={saving || deleting} wide>
-      {status === 'ready' && (
+      {status === 'ready' && somenteLeitura && (
+        <p className={styles.aviso}>Campeonato encerrado. O elenco fica só para consulta.</p>
+      )}
+
+      {status === 'ready' && !somenteLeitura && (
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <div className={styles.fields}>
             <Input
@@ -274,23 +280,25 @@ function ElencoModal({ time, onClose }: ElencoModalProps) {
                     <span className={styles.nomeJogador}>{jogador.nome}</span>
                     {jogador.posicao && <span className={styles.posicaoJogador}>{jogador.posicao}</span>}
                   </span>
-                  <div className={styles.rowActions}>
-                    <Button size="sm" variant="ghost" onClick={() => comecarEdicao(jogador)} disabled={saving}>
-                      Editar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className={styles.excluir}
-                      onClick={() => {
-                        setDeleteError(null)
-                        setToDelete(jogador)
-                      }}
-                      disabled={saving}
-                    >
-                      Excluir
-                    </Button>
-                  </div>
+                  {!somenteLeitura && (
+                    <div className={styles.rowActions}>
+                      <Button size="sm" variant="ghost" onClick={() => comecarEdicao(jogador)} disabled={saving}>
+                        Editar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={styles.excluir}
+                        onClick={() => {
+                          setDeleteError(null)
+                          setToDelete(jogador)
+                        }}
+                        disabled={saving}
+                      >
+                        Excluir
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
             </li>
