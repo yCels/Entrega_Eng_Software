@@ -52,9 +52,12 @@ app/
 
 - Cada organizador só vê e altera os próprios campeonatos.
 - Uma partida não pode ser agendada no mesmo horário e local de outra, nem com um time que já joga naquele horário. A regra é validada no service e reforçada no banco (`UNIQUE` em horário + local e `CHECK` para impedir um time contra ele mesmo).
+- Nenhuma partida pode ser marcada antes do início do campeonato (agendar, remarcar e gerar o calendário), e o início do campeonato não pode ser mudado para depois de partidas que já existem.
+- Gols e cartões só podem ser lançados a partir do horário da partida, com minuto de 0 a 150, e uma partida com eventos não pode ser remarcada para o futuro.
 - Só partidas finalizadas contam na classificação. Uma partida finalizada não aceita eventos, remarcação nem exclusão até ser reaberta, e só pode ser finalizada depois do horário do jogo.
-- Um campeonato encerrado não aceita mais mudanças em times, jogadores, partidas e eventos.
+- Um campeonato só pode ser encerrado com todas as partidas finalizadas, e depois de encerrado não aceita mais mudanças em times, jogadores, partidas e eventos.
 - Um time que já tem partidas não pode ser excluído, e um jogador com gols ou cartões registrados também não.
+- Nomes não podem ficar vazios nem passar do tamanho da coluna, a senha precisa de pelo menos 6 caracteres, e não podem existir dois times com o mesmo nome no campeonato nem duas camisas iguais no time.
 - Toda gravação passa por `core/transacao.py`: se o banco recusar, a transação é desfeita (rollback) e a API devolve uma mensagem clara.
 
 ## Principais rotas
@@ -67,7 +70,7 @@ app/
 | GET | `/api/auth/me` | Dados do usuário logado |
 | GET/POST | `/api/campeonatos/` | Lista e cria campeonatos |
 | GET/PUT/DELETE | `/api/campeonatos/{id}` | Detalhe, edição e exclusão |
-| PATCH | `/api/campeonatos/{id}/encerrar` | Encerra o campeonato (trava times, jogadores, partidas e eventos) |
+| PATCH | `/api/campeonatos/{id}/encerrar` | Encerra o campeonato, se todas as partidas estiverem finalizadas (trava times, jogadores, partidas e eventos) |
 | GET/POST | `/api/campeonatos/{id}/times` | Lista e cria times |
 | PUT/DELETE | `/api/times/{id}` | Edita e exclui um time |
 | GET/POST | `/api/times/{id}/jogadores` | Lista e cadastra jogadores do time |

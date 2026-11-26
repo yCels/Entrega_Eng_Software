@@ -32,7 +32,11 @@ Backend:
 - Eventos: jogador precisa ser do time informado, tipo validado e exclusão de evento lançado errado
 - Campeonato encerrado não aceita mais mudanças em times, jogadores, partidas e eventos
 - Time com partidas não pode ser excluído
-- 119 testes automatizados com pytest rodando no GitHub Actions a cada PR
+- Partida não pode ser marcada antes do início do campeonato (agendar, remarcar e gerar calendário), e mudar o início não pode deixar partidas antes da data nova
+- Gol ou cartão só é lançado depois do horário do jogo, com minuto de 0 a 150
+- Campeonato só é encerrado com todas as partidas finalizadas
+- A API valida nomes vazios ou longos demais, senha com no mínimo 6 caracteres, time com nome repetido no campeonato e camisa repetida no time
+- 141 testes automatizados com pytest rodando no GitHub Actions a cada PR
 
 Frontend:
 
@@ -44,6 +48,8 @@ Frontend:
 - Menu de ações da partida: remarcar, finalizar, reabrir e excluir
 - Súmula da partida: lançar gols e cartões por time, jogador e minuto, com placar automático e exclusão de evento
 - Tabela de classificação atualizada assim que uma partida é finalizada ou reaberta
+- Campeonato encerrado: times, elenco e súmula ficam só para consulta
+- Campos de data começam no início do campeonato, e a súmula de uma partida que ainda não começou abre só para consulta
 
 ---
 
@@ -145,3 +151,5 @@ Frontend:
 | 42 | Como equipe de desenvolvimento, quero testes automatizados rodando a cada Pull Request, para que uma mudança não quebre o que já funcionava. | Média | ✅ |
 | 43 | Como equipe de desenvolvimento, quero o DER e o diagrama de arquitetura atualizados no repositório, para que a estrutura do sistema fique documentada. | Alta | ✅ |
 | 44 | Como equipe de desenvolvimento, quero subir o sistema completo com Docker, para que qualquer pessoa consiga rodar o projeto com um comando. | Média | ✅ |
+| 45 | Como organizador, quero que o sistema impeça partidas antes do início do campeonato e gols ou cartões antes do horário do jogo, para que a agenda e a súmula fiquem coerentes. | Média | ✅ |
+| 46 | Como organizador, quero que o sistema recuse nomes vazios, times com o mesmo nome e camisas repetidas no time, para que os cadastros fiquem consistentes. | Média | ✅ |
