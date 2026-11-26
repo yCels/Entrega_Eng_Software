@@ -51,9 +51,9 @@ Em toda a interface há skeletons durante o carregamento e toasts de confirmaç�
 
 ### Telas
 
-| Login | Campeonatos |
-| --- | --- |
-| ![Tela de login](docs/img/login.png) | ![Lista de campeonatos](docs/img/campeonatos.png) |
+**Campeonatos:** lista com busca, filtro por status e os totais do organizador
+
+![Lista de campeonatos](docs/img/campeonatos.png)
 
 **Detalhe do campeonato:** times, partidas por rodada e classificação
 
